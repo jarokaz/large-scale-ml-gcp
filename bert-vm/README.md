@@ -1,8 +1,8 @@
-#BERT pre-training on Google Compute Engine
+# BERT pre-training on Google Compute Engine
 
 More assets to come, see shell scripts for running jobs and creating the infrastructure.
 
-##Configuration 1 Single Node Training (TF 2.4, Py 3.7)
+## Configuration 1 Single Node Training (TF 2.4, Py 3.7)
 
 **VM Spec**
 * 64 core N1
