@@ -7,19 +7,22 @@ More assets to come, see shell scripts for running jobs and creating the infrast
 **VM Spec**
 * 64 core N1
 * 8 V100's
-* Marketplace Deep Learning VM TFE 2.3 
+* Marketplace Deep Learning VM
+    * Debian 9
+    * CUDA 11
+    * Tensorflow Enterprise 2.3
 
-**VM Workflow**
-* Install conda
-* Get pretraining data together
-* Conda create -n tf24 python=3.7
-* Conda activate tf24
-* pip install tensorflow==2.4.0rc4 - This to resolve the multiheadattention Keras error when running pretraining
-* pip install tf-models-official
-* Run pretraining code
+**VM Setup**
+* SSH into your newly created instance
+* [Install miniconda for linux](https://docs.conda.io/en/latest/miniconda.html)
+* ```conda create -n tf24 python=3.7```
+* ```conda activate tf24```
+* ```pip install tensorflow==2.4.0rc4``` - This to [resolve the multiheadattention Keras error](https://github.com/tensorflow/models/issues/9357) when running pretraining
+* ```pip install tf-models-official```
+* We are now ready to start preparing training assets and running the training algorithms
 
 
-**Steps**
+**Running BERT**
 1. Set up a VM
 1. Prepare assets for training.  I suggest creating a bucket in Google Cloud Storage once you have your assets together, and as you use different services you can pull all your assets through the ```gsutil cp gs://bucketname``` command.
     1. Download [TF Model Garden](https://github.com/tensorflow/models)
