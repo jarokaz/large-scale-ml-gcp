@@ -19,12 +19,19 @@ resource "google_compute_instance" "container_vm" {
     boot_disk {
         initialize_params {
           image = data.google_compute_image.cos.self_link
+          size  = var.boot_disk_size
         }
     }
 
     service_account {
         email = var.service_account
         scopes = var.scopes
-  }
+    }
+
+    scheduling {
+        automatic_restart   = true
+        on_host_maintenance = "MIGRATE"
+    }
+
 }
 

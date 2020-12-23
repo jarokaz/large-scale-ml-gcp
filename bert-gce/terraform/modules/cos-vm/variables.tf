@@ -3,11 +3,6 @@ variable "name" {
     type        = string
 }
 
-variable "description" {
-    description = "The node description"
-    type        = string
-}
-
 variable "zone" {
     description = "The instance's zone"
     type        = string
@@ -29,6 +24,11 @@ variable "subnetwork" {
 variable "machine_type" {
     description = "The node's machine type"
     default     = "n1-standard-4"
+}
+
+variable "boot_disk_size" {
+    description = "The size of the boot disk"
+    default     = 100
 }
 
 variable "scopes" {

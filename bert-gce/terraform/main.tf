@@ -24,7 +24,6 @@ module "vpc" {
 module "training_node" {
     source          = "./modules/cos-vm"
     name            = "${var.name_prefix}-vm"
-    description     = "V100 compute node"
     zone            = var.zone
     network         = module.vpc.network_name
     subnetwork      = module.vpc.subnet_name
