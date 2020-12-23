@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 .terraform
 terraform.tfstate
-terrafrom.tfstate.backup
+terraform.tfstate.backup
 

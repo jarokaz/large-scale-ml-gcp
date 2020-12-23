@@ -12,3 +12,15 @@ resource "google_compute_subnetwork" "subnetwork" {
     ip_cidr_range            = var.subnet_ip_range
     private_ip_google_access = true
 }
+
+resource "google_compute_firewall" "http-ssh" {
+  name    = "allow-ssh"
+  network = google_compute_network.vpc_network.self_link
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  target_tags = ["ssh-traffic"]
+}
