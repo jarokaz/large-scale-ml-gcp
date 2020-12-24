@@ -22,6 +22,11 @@ resource "google_compute_instance" "container_vm" {
 
     tags             = ["ssh-traffic"]
 
+    guest_accelerator = [ {
+      count = var.gpu_count
+      type = var.gpu_type
+    } ]
+
     network_interface {
         network = var.network
         subnetwork = var.subnetwork
@@ -42,7 +47,7 @@ resource "google_compute_instance" "container_vm" {
 
     scheduling {
         automatic_restart   = true
-        on_host_maintenance = "MIGRATE"
+        on_host_maintenance = "TERMINATE"
     }
 
     #metadata = {

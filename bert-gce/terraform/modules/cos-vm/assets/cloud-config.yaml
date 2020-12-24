@@ -1,28 +1,26 @@
 #cloud-config
 
 users:
-- name: cloudservice
+- name: myuser
   uid: 2000
 
 write_files:
-- path: /etc/systemd/system/cloudservice.service
-  permissions: 0644
-  owner: root
-  content: |
-    [Unit]
-    Description=Start a deep learning container
+  - path: /etc/systemd/system/install-gpu.service
+    permissions: 0644
+    owner: root
+    content: |
+      [Unit]
+      Description=Install GPU drivers
+      Wants=gcr-online.target docker.socket
+      After=gcr-online.target docker.socket
 
-    [Service]
-    ExecStart=/usr/bin/docker run  --name=mycloudservice ${image}
-    ExecStop=/usr/bin/docker stop mycloudservice
-    ExecStopPost=/usr/bin/docker rm mycloudservice
+      [Service]
+      User=root
+      Type=oneshot
+      ExecStart=cos-extensions install gpu
+      StandardOutput=journal+console
+      StandardError=journal+console
 
 runcmd:
-- systemctl daemon-reload
-- systemctl start cloudservice.service
-
-# Optional once-per-boot setup. For example: mounting a PD.
-#bootcmd:
-#- fsck.ext4 -tvy /dev/[DEVICE_ID]
-#- mkdir -p /mnt/disks/[MNT_DIR]
-#- mount -t ext4 -O ... /dev/[DEVICE_ID] /mnt/disks/[MNT_DIR]
+  - systemctl daemon-reload
+  - systemctl start install-gpu.service

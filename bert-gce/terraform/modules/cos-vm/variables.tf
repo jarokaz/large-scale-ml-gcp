@@ -26,6 +26,16 @@ variable "machine_type" {
     default     = "n1-standard-4"
 }
 
+variable "gpu_type" {
+    description = "The GPU type"
+    default     = "nvidia-tesla-t4"
+}
+
+variable "gpu_count" {
+    description = "The number of GPUs"
+    default     = 2 
+}
+
 variable "boot_disk_size" {
     description = "The size of the boot disk"
     default     = 100
