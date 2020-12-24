@@ -17,3 +17,8 @@ variable "name_prefix" {
     description = "The name prefix to add to the resource names"
     type        = string
 }
+
+variable "container_image" {
+    description = "The URI of the container image"
+    type        = string
+}

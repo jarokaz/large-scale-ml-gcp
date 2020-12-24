@@ -31,6 +31,11 @@ variable "boot_disk_size" {
     default     = 100
 }
 
+variable "container_image" {
+    description = "The URI of the container image"
+    type        = string
+}
+
 variable "scopes" {
   description = "Instance scopes."
   type        = list(string)

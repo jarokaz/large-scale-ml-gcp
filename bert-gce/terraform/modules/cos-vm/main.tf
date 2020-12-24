@@ -1,6 +1,18 @@
+locals {
+    cloud_init = "${path.module}/assets/cloud-config.yaml"
+}
+
 data "google_compute_image" "cos" {
     family = "cos-stable"
     project = "cos-cloud"
+}
+
+data "template_file" "cloud-init" {
+    template = file(local.cloud_init)
+
+    vars = {
+        image = var.container_image
+    }
 }
 
 resource "google_compute_instance" "container_vm" {
@@ -8,7 +20,7 @@ resource "google_compute_instance" "container_vm" {
     machine_type     = var.machine_type
     zone             = var.zone
 
-    tags             = ["http-traffic", "ssh-traffic"]
+    tags             = ["ssh-traffic"]
 
     network_interface {
         network = var.network
@@ -32,6 +44,10 @@ resource "google_compute_instance" "container_vm" {
         automatic_restart   = true
         on_host_maintenance = "MIGRATE"
     }
+
+    #metadata = {
+    #    user-data = data.template_file.cloud-init.rendered
+    #}
 
 }
 

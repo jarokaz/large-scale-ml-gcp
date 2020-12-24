@@ -28,4 +28,5 @@ module "training_node" {
     network         = module.vpc.network_name
     subnetwork      = module.vpc.subnet_name
     service_account = data.google_compute_default_service_account.default.email
+    container_image = var.container_image
 }
