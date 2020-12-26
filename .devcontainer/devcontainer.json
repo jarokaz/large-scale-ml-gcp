@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.154.0/containers/python-3
 {
-"name": "Bert Lab",
+        "name": "Bert Lab",
 	"image": "gcr.io/deeplearning-platform-release/tf2-cpu.2-4"
 
 	// Set *default* container specific settings.json values on container create.
@@ -24,10 +24,10 @@
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"ms-python.python"
-    ],
+        ],
     
-    "workspaceFolder": "/workspace",
-    "workspaceMount": "source=remote-workspace,target=/workspace,type=volume",
+       //"workspaceFolder": "/workspace",
+       //"workspaceMount": "source=remote-workspace,target=/workspace,type=volume",
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
