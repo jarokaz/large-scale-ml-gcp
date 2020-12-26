@@ -3,6 +3,11 @@ terraform {
   required_providers {
     google = "~> 3.5"
   }
+
+  backend "gcs" {
+    bucket  = "jk-terraform-state"
+    prefix  = "bert-gce-lab"
+  }
 }
 
 provider "google" {
@@ -29,4 +34,12 @@ module "training_node" {
     subnetwork      = module.vpc.subnet_name
     service_account = data.google_compute_default_service_account.default.email
     container_image = var.container_image
+}
+
+
+resource "google_storage_bucket" "artifact_repo" {
+  name          = "${var.name_prefix}-vm"
+  location      = var.region
+  storage_class = "REGIONAL"
+  force_destroy = false
 }
