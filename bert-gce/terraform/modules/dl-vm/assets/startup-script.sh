@@ -28,7 +28,7 @@ fi
 # Installing NVidia docker toolkit
 if ! dpkg-query -W nvidia-docker
 then
-    echo "Setting up NVIDIA Container Toolkit"
+    echo "Installing NVIDIA Container Toolkit"
     distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
     && curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
     && curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
@@ -41,6 +41,8 @@ then
 else
     echo "Nvidia docker already installed. Skipping installation"
 fi
+
+echo "Startup script completed"
 
 
 ## Enable persistence mode
