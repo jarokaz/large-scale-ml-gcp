@@ -23,7 +23,7 @@ EOF
 PROJECT_ID=jk-mlops-dev
 IMAGE_NAME=gcr.io/$PROJECT_ID/tf24-bert-dev
 docker build -t $IMAGE_NAME .
-docker push
+docker push $IMAGE_NAME
 ``` 
 
 ### Install `kpt`
