@@ -2,7 +2,7 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.154.0/containers/python-3
 {
         "name": "Bert Lab",
-	"image": "gcr.io/deeplearning-platform-release/tf2-cpu.2-4"
+	"image": "gcr.io/jk-mlops-dev/tf24-bert-dev:latest"
 
 	// Set *default* container specific settings.json values on container create.
 	//"settings": { 
