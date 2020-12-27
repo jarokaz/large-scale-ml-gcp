@@ -26,12 +26,11 @@ docker build -t $IMAGE_NAME .
 docker push $IMAGE_NAME
 ``` 
 
-### Install `kpt`
+### Configure VS Code
 
-```
-sudo apt-get install google-cloud-sdk-kpt
-kpt version
-```
+Update the `devcontainer.json` with your image.
+
+
 
 ### Get SOTA NLP models from the model garden
 
