@@ -36,7 +36,7 @@ Update the `devcontainer.json` with your image.
 
 ```
 SRC_REPO=https://github.com/tensorflow/models
-kpt pkg get $SRC_REPO/nlp@v2.4.0 sota-nlp-models
+kpt pkg get $SRC_REPO/official/nlp@v2.4.0 sota-nlp-models
 ```
 
 
