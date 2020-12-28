@@ -44,6 +44,10 @@ fi
 
 echo "Startup script completed"
 
+echo "Authorizing docker for Container Registry"
+echo "Using the user: " ${USER}
+sudo usermod -a -G docker ${USER}
+gcloud auth configure-docker
 
 ## Enable persistence mode
 #nvidia-smi -pm 1
