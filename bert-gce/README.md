@@ -47,6 +47,3 @@ kpt pkg get $SRC_REPO/official/nlp@v2.4.0 sota-nlp-models
 export PYTHONPATH=$PYTHONPATH:/path/to/models
 ```
 
-```
-
-```
