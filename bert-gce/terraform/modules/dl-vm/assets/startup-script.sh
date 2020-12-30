@@ -42,12 +42,17 @@ else
     echo "Nvidia docker already installed. Skipping installation"
 fi
 
-echo "Startup script completed"
+echo "Adding jupyter and unbuntu users to the docker group."
 
-echo "Authorizing docker for Container Registry"
-echo "Using the user: "  $USER
-sudo usermod -a -G docker $USER
-gcloud auth configure-docker
+sudo usermod -a -G docker jupyter
+sudo usermod -a -G docker ubuntu
+
+echo "Authorizing jupyter and ubuntu users to access Container registry."
+
+sudo -u jupyter gcloud auth configure-docker
+sudo -u ubuntu gcloud auth configure-docker
+
+echo "Startup script completed"
 
 ## Enable persistence mode
 #nvidia-smi -pm 1
