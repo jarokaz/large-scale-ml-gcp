@@ -1,5 +1,5 @@
 ARG TF_VERSION=2-4
-FROM gcr.io/deeplearning-platform-release/tf2-cpu.$TF_VERSION
+FROM gcr.io/deeplearning-platform-release/tf2-gpu.$TF_VERSION
 ARG MODELS_BRANCH=r2.4.0
 WORKDIR /source
 RUN curl -O  https://storage.googleapis.com/kpt-dev/latest/linux_amd64/kpt \
@@ -11,4 +11,7 @@ RUN git clone -b $MODELS_BRANCH  --single-branch https://github.com/tensorflow/m
 
 ENV PYTHONPATH="/source/models:${PYTHONPATH}"
 
-ENTRYPOINT ["python"]
+ENTRYPOINT ["/bin/bash", "-c"]
+#ENTRYPOINT ["python"]
+CMD ["echo TensorFlow TF 2.4 Enterprise development image"]
+#CMD ["-c", 'print("TensorFlow TF 2.4 Enterprise development image")']
