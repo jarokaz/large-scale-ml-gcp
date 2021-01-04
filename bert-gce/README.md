@@ -42,6 +42,31 @@ gcr.io/jk-mlops-dev/model-garden-tf24 \
  --classification_task_name=${TASK_NAME}'
 ```
 
+### RUN RPC fine-tuning
+```
+docker run -it --rm --gpus all \
+--env GLUE_DIR=gs://labs-workspace/bert-dev/data/MRPC \
+--env BERT_DIR=gs://cloud-tpu-checkpoints/bert/keras_bert/uncased_L-24_H-1024_A-16 \
+--env TASK=MRPC \
+--env MODEL_DIR=gs://labs-workspace/bert-dev/models/mrpc/model_dir \
+gcr.io/jk-mlops-dev/model-garden-tf24 \
+'python models/official/nlp/bert/run_classifier.py \
+  --mode='train_and_eval' \
+  --input_meta_data_path=${GLUE_DIR}/${TASK}_meta_data \
+  --train_data_path=${GLUE_DIR}/${TASK}_train.tf_record \
+  --eval_data_path=${GLUE_DIR}/${TASK}_eval.tf_record \
+  --bert_config_file=${BERT_DIR}/bert_config.json \
+  --init_checkpoint=${BERT_DIR}/bert_model.ckpt \
+  --train_batch_size=4 \
+  --eval_batch_size=4 \
+  --steps_per_loop=1 \
+  --learning_rate=2e-5 \
+  --num_train_epochs=3 \
+  --model_dir=${MODEL_DIR} \
+  --distribution_strategy=mirrored \
+  --num_gpus=2'
+```
+
 ## Parking lot
 ### Configure VS Code
 
