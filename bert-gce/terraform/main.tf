@@ -27,7 +27,8 @@ module "vpc" {
 }
 
 module "training_node" {
-    source          = "./modules/dl-vm"
+    #source          = "./modules/dl-vm"
+    source          = "./modules/a2-vm"
     name            = "${var.name_prefix}-vm"
     zone            = var.zone
     network         = module.vpc.network_name
