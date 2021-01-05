@@ -19,18 +19,17 @@ PROJECT_ID=jk-mlops-dev
 IMAGE_NAME=gcr.io/$PROJECT_ID/model-garden-tf24
 docker build -t $IMAGE_NAME .
 docker push $IMAGE_NAME
-``` 
-
-## Run MRPC experiment
-
-### Prepare MRPC data
-
 ```
+
+## Run Sentence Prediction experiment
+
+### Prepare MNLI dataset
+
 docker run -it --rm --gpus all \
 --env GLUE_DIR=gs://jk-solution-assets/datasets/glue_data \
 --env BERT_DIR=gs://cloud-tpu-checkpoints/bert/keras_bert/uncased_L-24_H-1024_A-16 \
---env TASK_NAME=MRPC \
---env OUTPUT_DIR=gs://labs-workspace/bert-dev/data \
+--env TASK_NAME=MNLI \
+--env OUTPUT_DIR=gs://jk-bert-lab-bucket/data \
 gcr.io/jk-mlops-dev/model-garden-tf24 \
 'python models/official/nlp/data/create_finetuning_data.py \
  --input_data_dir=${GLUE_DIR}/${TASK_NAME}/ \
@@ -42,7 +41,51 @@ gcr.io/jk-mlops-dev/model-garden-tf24 \
  --classification_task_name=${TASK_NAME}'
 ```
 
-### RUN RPC fine-tuning
+### Run MNLI fine tuning
+
+```
+docker run -it --rm --gpus all \
+--env OUTPUT_DIR=gs://jk-bert-lab-bucket \
+--env TASK=MNLI \
+--env PARAMS=\
+task.train_data.input_path=gs://jk-bert-lab-bucket/data/MNLI/MNLI_train.tf_record,\
+task.validation_data.input_path=gs://jk-bert-lab-bucket/data/MNLI/MNLI_eval.tf_record,\
+task.init_checkpoint=gs://cloud-tpu-checkpoints/bert/keras_bert/uncased_L-24_H-1024_A-16,\
+runtime.distribution_strategy=mirrored,\
+runtime.num_gpus=2 \
+gcr.io/jk-mlops-dev/model-garden-tf24 \
+'python3 models/official/nlp/train.py \
+ --experiment=bert/sentence_prediction \
+ --mode=train_and_eval \
+ --model_dir=$OUTPUT_DIR/models/$TASK \
+ --config_file=models/official/nlp/configs/experiments/glue_mnli_matched.yaml \
+ --params_override=$PARAMS'
+ ```
+
+
+## Run MRPC experiment
+
+### Prepare MRPC data
+
+```
+docker run -it --rm --gpus all \
+--env GLUE_DIR=gs://jk-solution-assets/datasets/glue_data \
+--env BERT_DIR=gs://cloud-tpu-checkpoints/bert/keras_bert/uncased_L-24_H-1024_A-16 \
+--env TASK_NAME=MRPC \
+--env OUTPUT_DIR=gs://jk-bert-lab-bucket/data \
+gcr.io/jk-mlops-dev/model-garden-tf24 \
+'python models/official/nlp/data/create_finetuning_data.py \
+ --input_data_dir=${GLUE_DIR}/${TASK_NAME}/ \
+ --vocab_file=${BERT_DIR}/vocab.txt \
+ --train_data_output_path=${OUTPUT_DIR}/${TASK_NAME}/${TASK_NAME}_train.tf_record \
+ --eval_data_output_path=${OUTPUT_DIR}/${TASK_NAME}/${TASK_NAME}_eval.tf_record \
+ --meta_data_file_path=${OUTPUT_DIR}/${TASK_NAME}/${TASK_NAME}_meta_data \
+ --fine_tuning_task_type=classification --max_seq_length=128 \
+ --classification_task_name=${TASK_NAME}'
+```
+### RUN MRPC fine-tuning
+
+### RUN MRPC fine-tuning - legacy
 ```
 docker run -it --rm --gpus all \
 --env GLUE_DIR=gs://labs-workspace/bert-dev/data/MRPC \
