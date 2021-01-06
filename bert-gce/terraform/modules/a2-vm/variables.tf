@@ -14,22 +14,24 @@ variable "service_account" {
 
 variable "network" {
     description = "The name of the node's network "
+    type        = string
 }
 
 variable "subnetwork" {
     description = "The name of the node's subnetwork"
+    type        = string
 }
 
 
 variable "machine_type" {
     description = "The node's machine type"
-    default     = "n1-standard-4"
+    type        = string
 }
 
-variable "gpu_type" {
-    description = "The GPU type"
-    default     = "a2-highgpu-2g"
-}
+#variable "gpu_type" {
+#    description = "The GPU type"
+#    default     = "a2-highgpu-2g"
+#}
 
 variable "gpu_count" {
     description = "The number of GPUs"

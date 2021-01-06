@@ -22,3 +22,8 @@ variable "container_image" {
     description = "The URI of the container image"
     type        = string
 }
+
+variable "machine_type" {
+    description = "The node's machine type"
+    type        = string
+}

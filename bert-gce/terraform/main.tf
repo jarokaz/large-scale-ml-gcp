@@ -33,6 +33,7 @@ module "training_node" {
     zone            = var.zone
     network         = module.vpc.network_name
     subnetwork      = module.vpc.subnet_name
+    machine_type    = var.machine_type
     service_account = data.google_compute_default_service_account.default.email
     container_image = var.container_image
 }
