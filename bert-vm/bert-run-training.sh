@@ -10,8 +10,8 @@ python models/official/nlp/data/create_pretraining_data.py \
   --output_file=/home/kyleziegler_google_com/bert-assets/output/tf_examples.tfrecord \
   --vocab_file=/home/kyleziegler_google_com/bert-assets/wwm_uncased_L-24_H-1024_A-16/vocab.txt \
   --do_lower_case=True \
-  --max_seq_length=128 \
-  --max_predictions_per_seq=20 \
+  --max_seq_length=512 \
+  --max_predictions_per_seq=76 \
   --masked_lm_prob=0.15 \
   --random_seed=12345 \
   --dupe_factor=5
@@ -25,8 +25,8 @@ python models/official/nlp/data/create_pretraining_data.py \
 python models/official/nlp/bert/run_pretraining.py \
   --input_files=/home/kyleziegler_google_com/bert-assets/output/tf_examples.tfrecord \
   --train_batch_size=8 \
-  --max_seq_length=128 \
-  --max_predictions_per_seq=20 \
+  --max_seq_length=512 \
+  --max_predictions_per_seq=76 \
   --warmup_steps=5 \
   --learning_rate=2e-5 \
   --num_gpus=4 \
