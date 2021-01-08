@@ -8,7 +8,7 @@ RUN curl -O  https://storage.googleapis.com/kpt-dev/latest/linux_amd64/kpt \
 && mv kpt /usr/local/bin
 RUN git clone https://github.com/huggingface/transformers.git \
 && cd transformers \
-&& pip install -e
+&& pip install -e .
 
 ENTRYPOINT ["/bin/bash", "-c"]
 CMD ["echo Hugging Face development image"]

@@ -16,7 +16,7 @@ cd dev-image
 
 ```
 PROJECT_ID=jk-mlops-dev
-IMAGE_NAME=gcr.io/$PROJECT_ID/model-garden-tf24
+IMAGE_NAME=gcr.io/$PROJECT_ID/hugging-face-tf24
 docker build -t $IMAGE_NAME .
 docker push $IMAGE_NAME
 ```
