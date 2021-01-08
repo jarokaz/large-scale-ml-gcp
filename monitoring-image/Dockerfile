@@ -1,15 +1,5 @@
 
-# FROM alpine:latest
-
-# WORKDIR /apps
-
-
-# ENTRYPOINT ["/bin/bash", "-c"]
-# CMD ["echo executing "]
-
-
-
-FROM python:3
+FROM python:slim-buster
 
 # Changes the directory
 WORKDIR /app
