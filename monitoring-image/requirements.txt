@@ -1,0 +1,2 @@
+pynvml>=8.0.4
+google-cloud-monitoring>=2.0.0
