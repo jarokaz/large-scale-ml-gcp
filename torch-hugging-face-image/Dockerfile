@@ -13,7 +13,7 @@ RUN git clone -b $HF_TRANSFORMERS_BRANCH https://github.com/huggingface/transfor
 && pip install -e .
 
 RUN git clone -b $HF_DATASETS_BRANCH https://github.com/huggingface/datasets.git \
-&& cd transformers \
+&& cd datasets \
 && pip install -e .
 
 ENTRYPOINT ["/bin/bash", "-c"]

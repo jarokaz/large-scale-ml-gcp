@@ -44,7 +44,7 @@ gcr.io/jk-mlops-dev/model-garden-tf24 \
 ### Run MNLI fine tuning
 
 ```
-docker run -it --rm --gpus all \
+docker run -it --rm --gpus device=0 \
 --env OUTPUT_DIR=gs://jk-bert-lab-bucket \
 --env TASK=MNLI \
 --env PARAMS=\
