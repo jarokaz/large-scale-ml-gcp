@@ -10,7 +10,6 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 RUN git clone -b $MODELS_BRANCH  --single-branch https://github.com/tensorflow/models.git 
 
-ENV PYTHONPATH="/source/models:${PYTHONPATH}"
 
 ENTRYPOINT ["/bin/bash", "-c"]
 #ENTRYPOINT ["python"]
