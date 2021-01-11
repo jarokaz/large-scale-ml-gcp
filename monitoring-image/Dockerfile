@@ -1,6 +1,8 @@
 
 FROM python:slim-buster
 
+ENV projectID = "kz-2021"
+
 # Changes the directory
 WORKDIR /app
 
