@@ -33,15 +33,10 @@ def main():
     
     starttime = time.time()
     while True:
-        print "tick"
         getGPUStats()
         time.sleep(5.0 - ((time.time() - starttime) % 60.0))
 
     client = monitoring_v3.MetricServiceClient()
-
-
-
-    # Send metrics every X seconds as specified
 
 
 main()

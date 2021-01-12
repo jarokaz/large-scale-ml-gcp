@@ -25,6 +25,7 @@ docker push $IMAGE_NAME
 
 ### Prepare MNLI dataset
 
+```
 docker run -it --rm --gpus all \
 --env GLUE_DIR=gs://jk-solution-assets/datasets/glue_data \
 --env BERT_DIR=gs://cloud-tpu-checkpoints/bert/keras_bert/uncased_L-24_H-1024_A-16 \

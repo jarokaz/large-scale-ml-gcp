@@ -25,4 +25,11 @@ docker push $IMAGE_NAME
 docker run $
 ```
 
+### Troubleshooting
+
+Pushing images to GCR
+* docker-credential-gcr is not in system PATH: (stackoverflow fix)[https://stackoverflow.com/questions/49780218/docker-credential-gcloud-not-in-system-path]
+* Ensure that authentication is set up correctly, (follow these steps)[https://cloud.google.com/artifact-registry/docs/docker/authentication]
+
+
 
