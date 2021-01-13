@@ -7,7 +7,7 @@
 * [GCP monitoring - sending stats to the GCP api](https://googleapis.dev/python/monitoring/latest/index.html)
 
 
-### Create a training container image
+### Create and push container image
 
 ```
 cd dev-image
@@ -21,8 +21,15 @@ docker push $IMAGE_NAME
 ```
 
 ### run
+
+
+t - TTY
+i - interactive, keep stdin open
+rm - remove container from node when finished running
 ```
-docker run $
+docker run -it --rm \
+--env PROJECT_ID=kz-2021-267823 \
+us.gcr.io/$PROJECT_ID/gpu-monitoring
 ```
 
 ### Troubleshooting

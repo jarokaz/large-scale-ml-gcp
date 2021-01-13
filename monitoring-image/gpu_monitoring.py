@@ -7,6 +7,7 @@ import os
 # Docker run -e PROJECT_ID=abc -e var2=asd
 
 project_ID = os.environ['PROJECT_ID']
+print(project_ID)
 
 # Don't think we'll need credentials since the GKE cluster service
 # account would already have access to cloud monitoring
