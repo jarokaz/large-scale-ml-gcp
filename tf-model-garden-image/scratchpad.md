@@ -7,7 +7,7 @@ task.validation_data.input_path=gs://jk-bert-lab-bucket/data/MNLI/MNLI_eval.tf_r
 task.init_checkpoint=gs://cloud-tpu-checkpoints/bert/keras_bert/uncased_L-24_H-1024_A-16,\
 runtime.distribution_strategy=mirrored,\
 runtime.num_gpus=2,\
-trainer.train_steps=10
+trainer.train_steps=100
 
 python official/nlp/train.py \
 --experiment=bert/sentence_prediction \
