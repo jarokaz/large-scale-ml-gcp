@@ -9,7 +9,7 @@
 * [NVML reference guide](https://docs.nvidia.com/deploy/nvml-api/group__nvmlDeviceQueries.html#group__nvmlDeviceQueries_1g540824faa6cef45500e0d1dc2f50b321)
 
 ### Google Cloud Docs
-* (GCP Cloud Monitoring - Custom Metrics)[https://cloud.google.com/monitoring/custom-metrics/creating-metrics]
+* [GCP Cloud Monitoring - Custom Metrics](https://cloud.google.com/monitoring/custom-metrics/creating-metrics)
 
 ### Create and push container image
 
