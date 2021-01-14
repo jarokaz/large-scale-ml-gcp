@@ -5,6 +5,8 @@
 ### Python libs used
 * [NVML - for monitoring GPU](https://pypi.org/project/pynvml/)
 * [GCP monitoring - sending stats to the GCP api](https://googleapis.dev/python/monitoring/latest/index.html)
+* [Nvidia Developer - SMI PDF](http://developer.download.nvidia.com/compute/DCGM/docs/nvidia-smi-367.38.pdf)
+* [NVML reference guide](https://docs.nvidia.com/deploy/nvml-api/group__nvmlDeviceQueries.html#group__nvmlDeviceQueries_1g540824faa6cef45500e0d1dc2f50b321)
 
 
 ### Create and push container image
