@@ -25,12 +25,13 @@ docker push $IMAGE_NAME
 
 ### Prepare MNLI dataset
 
+```
 docker run -it --rm --gpus all \
 --env GLUE_DIR=gs://jk-solution-assets/datasets/glue_data \
 --env BERT_DIR=gs://cloud-tpu-checkpoints/bert/keras_bert/uncased_L-24_H-1024_A-16 \
 --env TASK_NAME=MNLI \
 --env OUTPUT_DIR=gs://jk-bert-lab-bucket/data \
-gcr.io/jk-mlops-dev/model-garden-tf24 \
+gcr.io/jk-mlops-dev/model-garden-tf24 \\
 'python models/official/nlp/data/create_finetuning_data.py \
  --input_data_dir=${GLUE_DIR}/${TASK_NAME}/ \
  --vocab_file=${BERT_DIR}/vocab.txt \
