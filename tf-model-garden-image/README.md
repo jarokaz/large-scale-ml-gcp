@@ -57,11 +57,11 @@ task.validation_data.global_batch_size=64,\
 runtime.distribution_strategy=mirrored,\
 runtime.num_gpus=2 \
 gcr.io/jk-mlops-dev/model-garden-tf24 \
-'python3 models/official/nlp/train.py \
+'python3 train.py \
  --experiment=bert/sentence_prediction \
  --mode=train_and_eval \
  --model_dir=$OUTPUT_DIR/models/$TASK \
- --config_file=models/official/nlp/configs/experiments/glue_mnli_matched.yaml \
+ --config_file=glue_mnli_matched.yaml \
  --params_override=$PARAMS'
  ```
 
