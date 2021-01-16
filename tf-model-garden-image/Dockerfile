@@ -9,7 +9,7 @@ RUN curl -O  https://storage.googleapis.com/kpt-dev/latest/linux_amd64/kpt \
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 RUN git clone -b $MODELS_BRANCH  --single-branch https://github.com/tensorflow/models.git 
-
+ENV PYTHONPATH=/source/models
 
 ENTRYPOINT ["/bin/bash", "-c"]
 #ENTRYPOINT ["python"]
