@@ -58,11 +58,12 @@ runtime.distribution_strategy=mirrored,\
 runtime.num_gpus=2 \
 gcr.io/jk-mlops-dev/model-garden-tf24 \
 'python3 train.py \
+ --start_profiler \
  --experiment=bert/sentence_prediction \
  --mode=train_and_eval \
  --model_dir=$OUTPUT_DIR/models/$TASK \
  --config_file=models/official/nlp/configs/experiments/glue_mnli_matched.yaml \
- --params_override=$PARAMS'
+ --params_override=$PARAMS' 
  ```
 
 

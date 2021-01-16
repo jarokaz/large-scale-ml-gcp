@@ -35,10 +35,9 @@ FLAGS = flags.FLAGS
 def main(_):
   gin.parse_config_files_and_bindings(FLAGS.gin_file, FLAGS.gin_params)
   params = train_utils.parse_configuration(FLAGS)
-  
+
   if FLAGS.start_profiler:
-      print('************** Starting TF Profiler Server')
-      tf.profiler.experimental.server.start(FLAGS.profiler_port)
+    tf.profiler.experimental.server.start(FLAGS.profiler_port)
 
   model_dir = FLAGS.model_dir
   if 'train' in FLAGS.mode:
