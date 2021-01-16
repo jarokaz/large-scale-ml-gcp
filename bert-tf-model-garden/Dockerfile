@@ -3,6 +3,8 @@ FROM gcr.io/deeplearning-platform-release/tf2-gpu.$TF_VERSION
 #ARG MODELS_BRANCH=r2.4.0
 ARG MODELS_BRANCH=master
 WORKDIR /source
+COPY train.py .
+COPY glue_mnli_matched.yaml .
 RUN curl -O  https://storage.googleapis.com/kpt-dev/latest/linux_amd64/kpt \
 && chmod +x kpt \
 && mv kpt /usr/local/bin
