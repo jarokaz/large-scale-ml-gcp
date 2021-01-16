@@ -61,7 +61,7 @@ gcr.io/jk-mlops-dev/model-garden-tf24 \
  --experiment=bert/sentence_prediction \
  --mode=train_and_eval \
  --model_dir=$OUTPUT_DIR/models/$TASK \
- --config_file=glue_mnli_matched.yaml \
+ --config_file=models/official/nlp/configs/experiments/glue_mnli_matched.yaml \
  --params_override=$PARAMS'
  ```
 

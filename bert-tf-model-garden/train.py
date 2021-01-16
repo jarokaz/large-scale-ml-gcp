@@ -18,6 +18,7 @@
 from absl import app
 from absl import flags
 import gin
+import tensorflow as tf
 
 from official.common import distribute_utils
 # pylint: disable=unused-import
@@ -31,10 +32,14 @@ from official.modeling import performance
 
 FLAGS = flags.FLAGS
 
-
 def main(_):
   gin.parse_config_files_and_bindings(FLAGS.gin_file, FLAGS.gin_params)
   params = train_utils.parse_configuration(FLAGS)
+  
+  if FLAGS.start_profiler:
+      print('************** Starting TF Profiler Server')
+      tf.profiler.experimental.server.start(FLAGS.profiler_port)
+
   model_dir = FLAGS.model_dir
   if 'train' in FLAGS.mode:
     # Pure eval modes do not output yaml files. Otherwise continuous eval job
@@ -63,6 +68,16 @@ def main(_):
       mode=FLAGS.mode,
       params=params,
       model_dir=model_dir)
+
+flags.DEFINE_integer(
+      'profiler_port',
+      default=6009,
+      help='The port for the profiler server.')
+
+flags.DEFINE_boolean(
+      'start_profiler',
+      default=False,
+      help='Starts TF profiler server.')
 
 if __name__ == '__main__':
   tfm_flags.define_flags()
