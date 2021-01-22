@@ -21,6 +21,13 @@ from absl import app
 from absl import flags
 from absl import logging
 
+from opencensus.ext.stackdriver import stats_exporter
+from opencensus.stats import aggregation
+from opencensus.stats import measure
+from opencensus.stats import stats
+from opencensus.stats import view
+from opencensus import tags
+
 from pynvml import smi
 
 GPU_UTILIZATION_METRIC_NAME = 'gce/gpu/utilization'
@@ -28,7 +35,9 @@ GPU_MEMORY_UTILIZATION_METRIC_NAME = 'gce/gpu/memory_utilization'
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('interval', 10, 'Sampling interval for collecting metrics', 
+flags.DEFINE_integer('sampling_interval', 5, 'Sampling interval for collecting metrics - seconds', 
+                     lower_bound=1)
+flags.DEFINE_integer('reporting_interval', 30, 'Reporting interval to Cloud Monitoring - seconds', 
                      lower_bound=10)
 
 
@@ -43,32 +52,67 @@ def get_gpu_metrics():
     return [device['utilization'] for device in utilization_info['gpu']]
 
 
-def report_gpu_metric(value, type, instance_id, zone, project_id):
-    series = monitoring_v3.types.TimeSeries()
-    series.metric.type = 'custom.googleapis.com/{type}'.format(type=type)
-    series.resource.type = 'gce_instance'
-    series.resource.labels['instance_id'] = instance_id
-    series.resource.labels['zone'] = zone
-    series.resource.labels['project_id'] = project_id
-    point = series.points.add()
-    point.value.int64_value = value
-    now = time.time()
-    point.interval.end_time.seconds = int(now)
-    point.interval.end_time.nanos = int(
-        (now - point.interval.end_time.seconds) * 10**9)
-    client.create_time_series(project_name, [series])
-
 def main(argv):
     del argv
 
-    logging.info(f'Entering monitoring loop with sampling interval: {FLAGS.interval}s')
+    # Define OpenCensus measures
+    gpu_utilization_ms = measure.MeasureInt(
+        'gpu_utilization',
+        'GPU utilization',
+        '%'
+    )
+    gpu_memory_utilization_ms = measure.MeasureInt(
+        'gpu_memory_utilization',
+        'GPU memory utilization',
+        '%'
+    )
+    
+    # Define OpenCensus views
+    key_device = tags.tag_key.TagKey("device")
+    
+    gpu_utilization_view = view.View(
+        'gpu_utilization_distribution',
+        'The distribution of gpu utilization',
+        [key_device],
+        gpu_utilization_ms,
+        aggregation.DistributionAggregation(
+            [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+        )
+    )
+    gpu_memory_utilization_view = view.View(
+        'gpu_memory_utilization_distribution',
+        'The distribution of gpu memory utilization',
+        [key_device],
+        gpu_memory_utilization_ms,
+        aggregation.DistributionAggregation(
+            [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+        )
+    )
+    stats.stats.view_manager.register_view(gpu_utilization_view)
+    stats.stats.view_manager.register_view(gpu_memory_utilization_view)
+    
+    # Create Cloud Monitoring stats exporter
+    exporter = stats_exporter.new_stats_exporter(interval=FLAGS.reporting_interval)
+    
+    # Register exporter to the view manager.
+    stats.stats.view_manager.register_exporter(exporter)
+    
+    logging.info(f'Entering monitoring loop with sampling interval: {FLAGS.sampling_interval}s')
 
+    
+    tmap = tags.tag_map.TagMap()
+    tmap.insert(key_device, tags.tag_value.TagValue("0"))
     while True:
-        print("Reporting metrics")
         metrics = get_gpu_metrics()
         for device_index in range(len(metrics)):
             print(f'GPU:{device_index}, Utilization:', metrics[device_index]['gpu_util'])
-        time.sleep(FLAGS.interval)
+            mmap = stats.stats.stats_recorder.new_measurement_map()
+            mmap.measure_int_put(gpu_utilization_ms, metrics[device_index]['gpu_util'])
+            mmap.measure_int_put(gpu_memory_utilization_ms, metrics[device_index]['memory_util'])
+            tmap.update(key_device, tags.tag_value.TagValue(str(device_index)))
+            mmap.record(tmap)
+            
+        time.sleep(FLAGS.sampling_interval)
 
 if __name__ == '__main__':
     app.run(main)
