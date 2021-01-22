@@ -24,6 +24,7 @@ from opencensus.stats import aggregation
 from opencensus.stats import measure
 from opencensus.stats import stats
 from opencensus.stats import view
+from opencensus import tags
 
 
 # A measure that represents task latency in ms.
@@ -32,13 +33,15 @@ LATENCY_MS = measure.MeasureFloat(
     "The task latency in milliseconds",
     "ms")
 
+key_device = tags.tag_key.TagKey("device")
+
 # A view of the task latency measure that aggregates measurements according to
 # a histogram with predefined bucket boundaries. This aggregate is periodically
 # exported to Stackdriver Monitoring.
 LATENCY_VIEW = view.View(
     "task_latency_distribution",
     "The distribution of the task latencies",
-    [],
+    [key_device],
     LATENCY_MS,
     # Latency in buckets: [>=0ms, >=100ms, >=200ms, >=400ms, >=1s, >=2s, >=4s]
     aggregation.DistributionAggregation(
@@ -60,18 +63,26 @@ def main():
     stats.stats.view_manager.register_exporter(exporter)
 
     # Record 100 fake latency values between 0 and 5 seconds.
-    for num in range(100):
+    tmap = tags.tag_map.TagMap()
+    tmap.insert(key_device, tags.tag_value.TagValue("0"))
+    
+    for num in range(500):
         ms = random() * 5 * 1000
 
         mmap = stats.stats.stats_recorder.new_measurement_map()
         mmap.measure_float_put(LATENCY_MS, ms)
-        mmap.record()
+        
+        device = num % 2
+        
+        tmap.update(key_device, tags.tag_value.TagValue(str(device)))
+        mmap.record(tmap)
 
         print("Fake latency recorded ({}: {})".format(num, ms))
+        time.sleep(5)
 
     # Keep the thread alive long enough for the exporter to export at least
     # once.
-    time.sleep(65)
+    time.sleep(95)
 
 
 if __name__ == '__main__':
