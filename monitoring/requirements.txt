@@ -1,3 +1,8 @@
 grpcio==1.35.0
 opencensus-ext-stackdriver==0.7.4
 opencensus==0.7.12
+pynvml>=8.0.4
+absl-py
+
+
+
