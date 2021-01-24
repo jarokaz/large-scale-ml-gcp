@@ -76,7 +76,7 @@ def main(argv):
         [key_device],
         gpu_utilization_ms,
         aggregation.DistributionAggregation(
-            [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+            [11, 21, 31, 41, 51, 61, 71, 81, 91, 101]
         )
     )
     gpu_memory_utilization_view = view.View(
@@ -85,7 +85,7 @@ def main(argv):
         [key_device],
         gpu_memory_utilization_ms,
         aggregation.DistributionAggregation(
-            [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+            [11, 21, 31, 41, 51, 61, 71, 81, 91, 101]
         )
     )
     stats.stats.view_manager.register_view(gpu_utilization_view)
