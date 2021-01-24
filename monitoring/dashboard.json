@@ -1,236 +1,350 @@
 {
-  "displayName": "GPU monitoring dashboard",
-  "mosaicLayout": {
-    "columns": 12,
-    "tiles": [
+  "displayName": "A2 GCE VM Instance Monitoring",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
       {
-        "width": 6,
-        "height": 4,
-        "widget": {
-          "title": "CPU Utilization",
-          "xyChart": {
-            "dataSets": [
-              {
-                "timeSeriesQuery": {
-                  "timeSeriesFilter": {
-                    "filter": "metric.type=\"compute.googleapis.com/instance/cpu/utilization\" AND resource.label.instance_id=\"7148291146842715683\" AND resource.type=\"gce_instance\"",
-                    "aggregation": {
-                      "perSeriesAligner": "ALIGN_MEAN"
-                    }
-                  },
-                  "unitOverride": "percent"
-                },
-                "plotType": "LINE",
-                "legendTemplate": "CPU Utilization"
-              }
-            ],
-            "chartOptions": {
-              "mode": "COLOR"
-            }
-          }
-        }
-      },
-      {
-        "xPos": 6,
-        "width": 6,
-        "height": 4,
-        "widget": {
-          "title": "OpenCensus/gce/gpu/utilization_distribution (filtered) (grouped) [MEAN]",
-          "xyChart": {
-            "dataSets": [
-              {
-                "timeSeriesQuery": {
-                  "timeSeriesFilter": {
-                    "filter": "metric.type=\"custom.googleapis.com/opencensus/gce/gpu/utilization_distribution\" resource.type=\"gce_instance\" metadata.system_labels.\"name\"=\"jk-bert-lab-vm\"",
-                    "aggregation": {
-                      "perSeriesAligner": "ALIGN_DELTA",
-                      "crossSeriesReducer": "REDUCE_MEAN",
-                      "groupByFields": [
-                        "metric.label.\"device\""
-                      ]
-                    }
-                  },
-                  "unitOverride": "%"
-                },
-                "plotType": "LINE",
-                "minAlignmentPeriod": "60s"
-              }
-            ],
-            "timeshiftDuration": "0s",
-            "yAxis": {
-              "label": "y1Axis",
-              "scale": "LINEAR"
-            },
-            "chartOptions": {
-              "mode": "COLOR"
-            }
-          }
-        }
-      },
-      {
-        "yPos": 4,
-        "width": 6,
-        "height": 4,
-        "widget": {
-          "title": "CPU Usage",
-          "xyChart": {
-            "dataSets": [
-              {
-                "timeSeriesQuery": {
-                  "timeSeriesFilter": {
-                    "filter": "metric.type=\"compute.googleapis.com/instance/cpu/usage_time\" AND resource.label.instance_id=\"7148291146842715683\" AND resource.type=\"gce_instance\"",
-                    "aggregation": {
-                      "perSeriesAligner": "ALIGN_RATE"
-                    }
-                  },
-                  "unitOverride": "s"
-                },
-                "plotType": "LINE",
-                "legendTemplate": "CPU Usage"
-              }
-            ],
-            "chartOptions": {
-              "mode": "COLOR"
-            }
-          }
-        }
-      },
-      {
-        "yPos": 8,
-        "width": 6,
-        "height": 4,
-        "widget": {
-          "title": "Disk I/O",
-          "xyChart": {
-            "dataSets": [
-              {
-                "timeSeriesQuery": {
-                  "timeSeriesFilter": {
-                    "filter": "metric.type=\"compute.googleapis.com/instance/disk/read_bytes_count\" resource.type=\"gce_instance\" resource.label.\"instance_id\"=\"7148291146842715683\"",
-                    "aggregation": {
-                      "perSeriesAligner": "ALIGN_RATE"
-                    },
-                    "secondaryAggregation": {
-                      "perSeriesAligner": "ALIGN_MEAN"
-                    }
+        "title": "GCE VM Instance - CPU Utilization",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"compute.googleapis.com/instance/cpu/utilization\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_MEAN"
                   }
                 },
-                "plotType": "LINE",
-                "legendTemplate": "${metric.labels.device_name}: ${shortMetric}",
-                "minAlignmentPeriod": "60s"
+                "unitOverride": "ratio"
               },
-              {
-                "timeSeriesQuery": {
-                  "timeSeriesFilter": {
-                    "filter": "metric.type=\"compute.googleapis.com/instance/disk/write_bytes_count\" resource.type=\"gce_instance\" resource.label.\"instance_id\"=\"7148291146842715683\"",
-                    "aggregation": {
-                      "perSeriesAligner": "ALIGN_RATE"
-                    },
-                    "secondaryAggregation": {
-                      "perSeriesAligner": "ALIGN_MEAN"
-                    }
-                  }
-                },
-                "plotType": "LINE",
-                "legendTemplate": "${metric.labels.device_name}: ${shortMetric}",
-                "minAlignmentPeriod": "60s"
-              }
-            ],
-            "timeshiftDuration": "0s",
-            "yAxis": {
-              "label": "y1Axis",
-              "scale": "LINEAR"
-            },
-            "chartOptions": {
-              "mode": "COLOR"
+              "plotType": "LINE",
+              "minAlignmentPeriod": "60s"
             }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
           }
         }
       },
       {
-        "yPos": 12,
-        "width": 6,
-        "height": 4,
-        "widget": {
-          "title": "Network Traffic",
-          "xyChart": {
-            "dataSets": [
-              {
-                "timeSeriesQuery": {
-                  "timeSeriesFilter": {
-                    "filter": "metric.type=\"compute.googleapis.com/instance/network/received_bytes_count\" AND resource.label.instance_id=\"7148291146842715683\" AND resource.type=\"gce_instance\"",
-                    "aggregation": {
-                      "perSeriesAligner": "ALIGN_RATE",
-                      "crossSeriesReducer": "REDUCE_SUM"
-                    }
-                  },
-                  "unitOverride": "bytes"
+        "title": "GCE VM Instance - Uptime",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"compute.googleapis.com/instance/uptime\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_RATE"
+                  }
                 },
-                "plotType": "LINE",
-                "legendTemplate": "${shortMetric}"
+                "unitOverride": "s"
               },
-              {
-                "timeSeriesQuery": {
-                  "timeSeriesFilter": {
-                    "filter": "metric.type=\"compute.googleapis.com/instance/network/sent_bytes_count\" AND resource.label.instance_id=\"7148291146842715683\" AND resource.type=\"gce_instance\"",
-                    "aggregation": {
-                      "perSeriesAligner": "ALIGN_RATE",
-                      "crossSeriesReducer": "REDUCE_SUM"
-                    }
-                  },
-                  "unitOverride": "bytes"
-                },
-                "plotType": "LINE",
-                "legendTemplate": "${shortMetric}"
-              }
-            ],
-            "chartOptions": {
-              "mode": "COLOR"
+              "plotType": "LINE",
+              "minAlignmentPeriod": "60s"
             }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
           }
         }
       },
       {
-        "xPos": 6,
-        "yPos": 4,
-        "width": 6,
-        "height": 4,
-        "widget": {
-          "title": "OpenCensus/gce/gpu/memory_utilization_distribution [MEAN]",
-          "xyChart": {
-            "dataSets": [
-              {
-                "timeSeriesQuery": {
-                  "timeSeriesFilter": {
-                    "filter": "metric.type=\"custom.googleapis.com/opencensus/gce/gpu/memory_utilization_distribution\" resource.type=\"gce_instance\"",
-                    "aggregation": {
-                      "perSeriesAligner": "ALIGN_DELTA",
-                      "crossSeriesReducer": "REDUCE_SUM",
-                      "groupByFields": [
-                        "metric.label.\"device\""
-                      ]
-                    },
-                    "secondaryAggregation": {
-                      "perSeriesAligner": "ALIGN_DELTA",
-                      "crossSeriesReducer": "REDUCE_MEAN",
-                      "groupByFields": [
-                        "metric.label.\"device\""
-                      ]
-                    }
+        "title": "Disk read operations",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"compute.googleapis.com/instance/disk/read_ops_count\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_RATE"
                   }
                 },
-                "plotType": "LINE",
-                "minAlignmentPeriod": "60s"
-              }
-            ],
-            "timeshiftDuration": "0s",
-            "yAxis": {
-              "label": "y1Axis",
-              "scale": "LINEAR"
-            },
-            "chartOptions": {
-              "mode": "COLOR"
+                "unitOverride": "1"
+              },
+              "plotType": "LINE",
+              "minAlignmentPeriod": "60s"
             }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
+          }
+        }
+      },
+      {
+        "title": "Disk write operations",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"compute.googleapis.com/instance/disk/write_ops_count\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_RATE"
+                  }
+                },
+                "unitOverride": "1"
+              },
+              "plotType": "LINE",
+              "minAlignmentPeriod": "60s"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
+          }
+        }
+      },
+      {
+        "title": "Disk read bytes",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"compute.googleapis.com/instance/disk/read_bytes_count\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_RATE"
+                  }
+                },
+                "unitOverride": "By"
+              },
+              "plotType": "LINE",
+              "minAlignmentPeriod": "60s"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
+          }
+        }
+      },
+      {
+        "title": "Disk write bytes",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"compute.googleapis.com/instance/disk/write_bytes_count\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_RATE"
+                  }
+                },
+                "unitOverride": "By"
+              },
+              "plotType": "LINE",
+              "minAlignmentPeriod": "60s"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
+          }
+        }
+      },
+      {
+        "title": "GCE VM Instance - Received packets",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"compute.googleapis.com/instance/network/received_packets_count\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_RATE"
+                  }
+                },
+                "unitOverride": "1"
+              },
+              "plotType": "LINE",
+              "minAlignmentPeriod": "60s"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
+          }
+        }
+      },
+      {
+        "title": "GCE VM Instance - Sent packets count",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"compute.googleapis.com/nat/sent_packets_count\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_RATE"
+                  }
+                },
+                "unitOverride": "{packet}"
+              },
+              "plotType": "LINE",
+              "minAlignmentPeriod": "60s"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
+          }
+        }
+      },
+      {
+        "title": "GCE VM Instance - Received bytes",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"compute.googleapis.com/instance/network/received_bytes_count\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_RATE"
+                  }
+                },
+                "unitOverride": "By"
+              },
+              "plotType": "LINE",
+              "minAlignmentPeriod": "60s"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
+          }
+        }
+      },
+      {
+        "title": "GCE VM Instance - Sent bytes",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"compute.googleapis.com/instance/network/sent_bytes_count\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_RATE"
+                  }
+                },
+                "unitOverride": "By"
+              },
+              "plotType": "LINE",
+              "minAlignmentPeriod": "60s"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
+          }
+        }
+      },
+      {
+        "title": "GPU Utilization",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/opencensus/gce/gpu/utilization_distribution\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_DELTA",
+                    "crossSeriesReducer": "REDUCE_MEAN",
+                    "groupByFields": [
+                      "metric.label.\"device\""
+                    ]
+                  }
+                },
+                "unitOverride": "%"
+              },
+              "plotType": "LINE",
+              "minAlignmentPeriod": "60s"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
+          }
+        }
+      },
+      {
+        "title": "GPU Memory Utilization",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/opencensus/gce/gpu/memory_utilization_distribution\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_DELTA",
+                    "crossSeriesReducer": "REDUCE_MEAN",
+                    "groupByFields": [
+                      "metric.label.\"device\""
+                    ]
+                  },
+                  "secondaryAggregation": {}
+                },
+                "unitOverride": "%"
+              },
+              "plotType": "LINE",
+              "minAlignmentPeriod": "60s"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
           }
         }
       }
