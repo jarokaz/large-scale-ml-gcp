@@ -133,4 +133,4 @@ dmypy.json
 .terraform
 terraform.tfstate
 terraform.tfstate.backup
-
+/.vscode
