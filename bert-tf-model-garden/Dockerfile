@@ -5,6 +5,7 @@ WORKDIR /source
 RUN git clone -b $MODELS_BRANCH  --single-branch https://github.com/tensorflow/models.git 
 RUN pip install -r models/official/requirements.txt
 COPY train.py .
+COPY profile.py .
 ENV PYTHONPATH=/source/models
 
 ENTRYPOINT ["/bin/bash", "-c"]
