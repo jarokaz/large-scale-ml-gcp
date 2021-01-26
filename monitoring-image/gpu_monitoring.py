@@ -6,8 +6,6 @@ import os
 import socket
 
 
-
-
 def getGPUStats(project_id):
     nvsmi = nvidia_smi.getInstance()
     print(nvsmi.DeviceQuery('memory.free, memory.total, utilization.gpu, stats'))
@@ -25,13 +23,16 @@ def getGPUStats(project_id):
     machine_identifier = socket.gethostname()
     gpu_util = statsDict["gpu"][0]["utilization"]["gpu_util"]
     
+    print("Machine ID: %s" % machine_identifier)
+    
     project_name = f"projects/{project_id}"
 
     series = monitoring_v3.TimeSeries()
     series.metric.type = "custom.googleapis.com/gpu/utilization"
     series.resource.type = "gce_instance"
-    series.resource.labels["instance_id"] = machine_identifier
+    series.resource.labels["instance_id"] = machine_identifier + "gpu-1"
     series.resource.labels["zone"] = "us-west1-b"
+    
     now = time.time()
     seconds = int(now)
     nanos = int((now - seconds) * 10 ** 9)
