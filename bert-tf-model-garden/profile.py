@@ -30,7 +30,7 @@ def main(_):
         FLAGS.duration
     )
     logging.info(
-        f'Starting a profiler run for: {FLAGS.duration}ms. Logs in: {FLAGS.tb_log_dir}')
+        f'Profiling completed. Duration: {FLAGS.duration}ms. Logs in: {FLAGS.tb_log_dir}')
 
 flags.DEFINE_integer(
     'profiler_port',
