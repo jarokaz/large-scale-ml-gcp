@@ -1,5 +1,6 @@
 {
-  "displayName": "A2 GCE VM Instance Monitoring",
+  "displayName": "GPU Monitoring",
+  "etag": "c38252223fd56bb8e9d3e8e5a438aad8",
   "gridLayout": {
     "columns": "2",
     "widgets": [
