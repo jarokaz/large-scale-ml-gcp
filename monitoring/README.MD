@@ -23,14 +23,18 @@ gcloud monitoring dashboards update $DASHBOARD_ID --config-from-file=dashboard.j
 
 ## Running and building the image
 
+```
+export PROJECT_ID=your_proj
+export IMAGE_NAME=monitoring_image
+```
+
 **Build**
 ```
-export IMAGE_NAME=monitoring_image
 docker build -t $IMAGE_NAME ./monitoring
 ```
 
 **Run**
 ```
-docker run --rm --gpus all monitoring_image
+docker run --rm --gpus all monitoring_image --project_id=$PROJECT_ID
 ```
 

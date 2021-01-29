@@ -348,6 +348,39 @@
             "mode": "COLOR"
           }
         }
+      },
+      {
+        "title": "GPU Power Consumption",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/opencensus/gce/gpu/power_utilization_distribution\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_DELTA",
+                    "crossSeriesReducer": "REDUCE_MEAN",
+                    "groupByFields": [
+                      "metric.label.\"device\""
+                    ]
+                  },
+                  "secondaryAggregation": {}
+                },
+                "unitOverride": "%"
+              },
+              "plotType": "LINE",
+              "minAlignmentPeriod": "60s"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          },
+          "chartOptions": {
+            "mode": "COLOR"
+          }
+        }
       }
     ]
   }
