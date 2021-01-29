@@ -33,7 +33,7 @@ from pynvml import smi
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('sampling_interval', 5, 'Sampling interval for collecting metrics - seconds', 
+flags.DEFINE_integer('sampling_interval', 10, 'Sampling interval for collecting metrics - seconds', 
                      lower_bound=1)
 flags.DEFINE_integer('reporting_interval', 30, 'Reporting interval to Cloud Monitoring - seconds', 
                      lower_bound=10)
@@ -43,17 +43,21 @@ flags.mark_flag_as_required('project_id')
 
 def get_gpu_metrics():
     """
-    Retrieves GPU and GPU memory utilization for all attached devices.
+    Retrieves GPU, power, and memory utilization for all attached devices.
+    Reference: https://github.com/gpuopenanalytics/pynvml/blob/master/pynvml/smi.py
     """
 
     nvsmi = smi.nvidia_smi.getInstance()
     utilization_info = nvsmi.DeviceQuery(
-        [smi.NVSMI_UTILIZATION_GPU, smi.NVSMI_UTILIZATION_MEM])
-    return [device['utilization'] for device in utilization_info['gpu']]
-
+        [smi.NVSMI_UTILIZATION_GPU, smi.NVSMI_UTILIZATION_MEM, smi.NVSMI_POWER_DRAW, 
+        smi.NVSMI_POWER_LIMIT])
+    return [d for d in utilization_info['gpu']]
 
 def main(argv):
     del argv
+    
+    #logging.info("main()")
+    #logging.info("Project ID:" + FLAGS.project_id)
 
     # Define OpenCensus measures
     gpu_utilization_ms = measure.MeasureInt(
@@ -66,6 +70,12 @@ def main(argv):
         'GPU memory utilization',
         '%'
     )
+    gpu_power_utilization_ms = measure.MeasureInt(
+        'gpu_power_utilization',
+        'GPU Power utilization',
+        '%'
+    )
+    
     
     # Define OpenCensus views
     key_device = tags.tag_key.TagKey("device")
@@ -88,8 +98,23 @@ def main(argv):
             [11, 21, 31, 41, 51, 61, 71, 81, 91, 101]
         )
     )
+    gpu_power_utilization_view  = view.View(
+        'gce/gpu/power_utilization_distribution',
+        'The distribution of power utilization',
+        [key_device],
+        gpu_power_utilization_ms,
+        aggregation.DistributionAggregation(
+            [11, 21, 31, 41, 51, 61, 71, 81, 91, 101]
+        )
+    )
+    
+    
     stats.stats.view_manager.register_view(gpu_utilization_view)
     stats.stats.view_manager.register_view(gpu_memory_utilization_view)
+    stats.stats.view_manager.register_view(gpu_power_utilization_view)
+    
+    
+
     
     # Create Cloud Monitoring stats exporter
     exporter_options = stats_exporter.Options(project_id=FLAGS.project_id,
@@ -109,10 +134,17 @@ def main(argv):
         metrics = get_gpu_metrics()
         for device_index in range(len(metrics)):
             mmap = stats.stats.stats_recorder.new_measurement_map()
-            mmap.measure_int_put(gpu_utilization_ms, metrics[device_index]['gpu_util'])
-            mmap.measure_int_put(gpu_memory_utilization_ms, metrics[device_index]['memory_util'])
+            
+            mmap.measure_int_put(gpu_utilization_ms, metrics[device_index]['utilization']['gpu_util'])
+            mmap.measure_int_put(gpu_memory_utilization_ms, metrics[device_index]['utilization']['memory_util'])
+            power_percentage = metrics[device_index]['power_readings']['power_draw'] / metrics[device_index]['power_readings']['power_limit']
+            #logging.info(round(power_percentage,2))
+            mmap.measure_int_put(gpu_power_utilization_ms, round(power_percentage,2))
+            
             tmap.update(key_device, tags.tag_value.TagValue(str(device_index)))
             mmap.record(tmap)
+            #logging.info(mmap)
+            #logging.info(tmap)
             
         time.sleep(FLAGS.sampling_interval)
 
