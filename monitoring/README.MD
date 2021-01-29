@@ -17,7 +17,7 @@ gcloud monitoring dashboards describe $DASHBOARD_ID
 ```
 
 **Update dashboard**
-- Add etag from "dashboard describe"
+- Add etag from "dashboard describe" to dashboard.json
 ```
 gcloud monitoring dashboards update $DASHBOARD_ID --config-from-file=dashboard.json
 ```
