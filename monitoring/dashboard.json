@@ -1,6 +1,6 @@
 {
   "displayName": "GPU Monitoring",
-  "etag": "c38252223fd56bb8e9d3e8e5a438aad8",
+  "etag": "your etag from gcloud monitoring dashboard describe", 
   "gridLayout": {
     "columns": "2",
     "widgets": [
