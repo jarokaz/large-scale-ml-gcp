@@ -136,3 +136,31 @@ kpt pkg get $SRC_REPO/official/nlp@v2.4.0 sota-nlp-models
 export PYTHONPATH=$PYTHONPATH:/path/to/models
 ```
 
+### Installing DCGM
+
+#### Install repository meta-data
+
+```
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID | sed -e 's/\.//g')
+echo "deb http://developer.download.nvidia.com/compute/cuda/repos/$distribution/x86_64 /" | sudo tee /etc/apt/sources.list.d/cuda.list
+```
+
+#### Trust the CUDA public GPG key
+
+```
+sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/$distribution/x86_64/7fa2af80.pub
+wget https://developer.download.nvidia.com/compute/cuda/repos/$distribution/x86_64/cuda-$distribution.pin
+ sudo mv cuda-$distribution.pin /etc/apt/preferences.d/cuda-repository-pin-600
+```
+
+####  Updated the repository cache
+
+```
+sudo apt-get update
+```
+
+#### Install DCGM
+
+```
+$ sudo apt-get install -y datacenter-gpu-manager
+```
