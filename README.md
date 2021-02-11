@@ -7,5 +7,6 @@
 
 TODO
 - Scripts for creating cloud monitoring infrastructure?
-- Trying the new Nvidia DCGM library they open sourced
+- JK: Trying the new Nvidia DCGM library they open sourced
+- KZ: Image for building TF records from the GLUE dataset
 - Profiling TF code
