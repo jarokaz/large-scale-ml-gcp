@@ -11,7 +11,7 @@ from official import nlp
 from official.nlp import bert
 
 
-glue, info = tfds.load('glue/mrpc', with_info=True,
+glue, info = tfds.load('glue/cola', with_info=True,
                        # It's small, load the whole dataset
                        batch_size=-1)
 
