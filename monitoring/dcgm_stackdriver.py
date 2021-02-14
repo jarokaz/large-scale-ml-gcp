@@ -35,43 +35,143 @@ from opencensus import tags
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('sampling_interval', 1, 'Sampling interval for collecting metrics - seconds', 
+flags.DEFINE_integer('sampling_interval', 2, 'Sampling interval for collecting metrics - seconds', 
+                     lower_bound=1)
+flags.DEFINE_integer('update_frequency', 1000, 'DCGM update frequency - miliseconds seconds', 
                      lower_bound=1)
 flags.DEFINE_integer('reporting_interval', 30, 'Reporting interval to Cloud Monitoring - seconds', 
                      lower_bound=10)
 flags.DEFINE_string('project_id', None, 'GCP Project ID')
 flags.mark_flag_as_required('project_id')
 
+# Mapping DCGM fields to OC metrics
+FIELDS_TO_OC = {
+    dcgm_fields.DCGM_FI_DEV_POWER_USAGE:
+        {
+            'name': 'power_usage',
+            'desc': 'power usage',
+            'units': 'Watts',
+            'buckets': [], 
+        },
+    dcgm_fields.DCGM_FI_DEV_GPU_UTIL:
+        {
+            'name': 'gpu_utilization',
+            'desc': 'GPU utilization',
+            'units': '%',
+            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101],
+        },
+    dcgm_fields.DCGM_FI_DEV_MEM_COPY_UTIL:
+        {
+            'name': 'mem_cpu_utilization',
+            'desc': 'memory copy utilization',
+            'units': '%',
+            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101],
+        },
+    dcgm_fields.DCGM_FI_PROF_DRAM_ACTIVE:
+        {
+            'name': 'memory_active',
+            'desc': 'ratio of cycles the device memory inteface is active sending or receiving data',
+            'units': 'ratio',
+            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101],
+        },
+    dcgm_fields.DCGM_FI_DEV_FB_TOTAL:
+        {
+            'name': 'fb_total',
+            'desc': 'Total framebuffer memory',
+            'units': 'MBs',
+        },
+    dcgm_fields.DCGM_FI_DEV_FB_FREE:
+        {
+            'name': 'fb_free',
+            'desc': 'Free framebuffer memory',
+            'units': 'MBs',
+        },
+    dcgm_fields.DCGM_FI_DEV_FB_USED:
+        {
+            'name': 'fb_used',
+            'desc': 'Used framebuffer memory',
+            'units': 'MBs',
+        },
+    dcgm_fields.DCGM_FI_PROF_GR_ENGINE_ACTIVE:
+        {
+            'name': 'gr_engine_active',
+            'desc': 'ratio of time the graphics engine is active',
+            'units': 'ratio',
+            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
+        },
+    dcgm_fields.DCGM_FI_PROF_SM_ACTIVE:
+        {
+            'name': 'sm_active',
+            'desc': 'ratio of cycles an SM has at least 1 warp assigned',
+            'units': 'ratio',
+            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
+        },
+    dcgm_fields.DCGM_FI_PROF_SM_OCCUPANCY:
+        {
+            'name': 'sm_occupancy',
+            'desc': 'ratio of number of warps resident on an SM',
+            'units': 'ratio',
+            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
+        },
+    dcgm_fields.DCGM_FI_PROF_PIPE_TENSOR_ACTIVE:
+        {
+            'name': 'tensor_active',
+            'desc': 'ratio of cycles the tensor cores are active',
+            'units': 'ratio',
+            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
+        },
+    dcgm_fields.DCGM_FI_PROF_PIPE_FP64_ACTIVE:
+        {
+            'name': 'fp64_active',
+            'desc': 'ratio of cycles the FP64 cores are active',
+            'units': 'ratio',
+            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
+        },
+    dcgm_fields.DCGM_FI_PROF_PIPE_FP32_ACTIVE:
+        {
+            'name': 'fp32_active',
+            'desc': 'ratio of cycles the FP32 cores are active',
+            'units': 'ratio',
+            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
+        },
+    dcgm_fields.DCGM_FI_PROF_PIPE_FP16_ACTIVE:
+        {
+            'name': 'fp16_active',
+            'desc': 'ratio of cycles the FP16 cores are active',
+            'units': 'ratio',
+            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
+        },
+    dcgm_fields.DCGM_FI_PROF_PCIE_TX_BYTES:
+        {
+            'name': 'pcie_tx_throughput',
+            'desc': 'PCIE transmit througput',
+            'units': 'bytes per second',
+            'buckets': [], 
+        },
+    dcgm_fields.DCGM_FI_PROF_PCIE_RX_BYTES:
+        {
+            'name': 'pcie_rx_throughput',
+            'desc': 'PCIE receive througput',
+            'units': 'bytes per second',
+            'buckets': [], 
+        },
+    dcgm_fields.DCGM_FI_PROF_NVLINK_TX_BYTES:
+        {
+            'name': 'nvlink_tx_throughput',
+            'desc': 'NVLink transmit througput',
+            'units': 'bytes per second',
+            'buckets': [], 
+        },
+    dcgm_fields.DCGM_FI_PROF_NVLINK_RX_BYTES:
+        {
+            'name': 'nvlink_rx_throughput',
+            'desc': 'NVLink receive througput',
+            'units': 'bytes per second',
+            'buckets': [], 
+        },
+}
 
-PUBLISH_FIELDS = [
-    dcgm_fields.DCGM_FI_DEV_PCI_BUSID, 
-    dcgm_fields.DCGM_FI_DEV_POWER_USAGE,
-    dcgm_fields.DCGM_FI_DEV_GPU_TEMP,
-    dcgm_fields.DCGM_FI_DEV_SM_CLOCK,
-    dcgm_fields.DCGM_FI_DEV_GPU_UTIL,
-    dcgm_fields.DCGM_FI_DEV_RETIRED_PENDING,
-    dcgm_fields.DCGM_FI_DEV_RETIRED_SBE,
-    dcgm_fields.DCGM_FI_DEV_RETIRED_DBE,
-    dcgm_fields.DCGM_FI_DEV_ECC_SBE_AGG_TOTAL,
-    dcgm_fields.DCGM_FI_DEV_ECC_DBE_AGG_TOTAL,
-    dcgm_fields.DCGM_FI_DEV_FB_TOTAL,
-    dcgm_fields.DCGM_FI_DEV_FB_FREE,
-    dcgm_fields.DCGM_FI_DEV_FB_USED,
-    dcgm_fields.DCGM_FI_DEV_PCIE_REPLAY_COUNTER,
-    dcgm_fields.DCGM_FI_DEV_ECC_SBE_VOL_TOTAL,
-    dcgm_fields.DCGM_FI_DEV_ECC_DBE_VOL_TOTAL,
-    dcgm_fields.DCGM_FI_DEV_POWER_VIOLATION,
-    dcgm_fields.DCGM_FI_DEV_THERMAL_VIOLATION,
-    dcgm_fields.DCGM_FI_DEV_XID_ERRORS,
-    dcgm_fields.DCGM_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_TOTAL,
-    dcgm_fields.DCGM_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_TOTAL,
-    dcgm_fields.DCGM_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_TOTAL,
-    dcgm_fields.DCGM_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_TOTAL,
-]
 
-IGNORE_FIELDS = [
-    dcgm_fields.DCGM_FI_DEV_PCI_BUSID
-]
 
 FIELD_GROUP_NAME = 'dcgm_stackdriver'
 
@@ -82,20 +182,36 @@ class DcgmStackdriver(DcgmReader):
     def __init__(self):
         # Set DCGM update frequency to half of the sampling interval
         # to avoid reporting the same reading multiple times
-        update_frequency = FLAGS.sampling_interval * 1000000 / 2
-        logging.info('Initializing DCGM with interval={}s'.format(update_frequency))
-        DcgmReader.__init__(self, fieldIds=PUBLISH_FIELDS, ignoreList=IGNORE_FIELDS, 
-                            fieldGroupName=FIELD_GROUP_NAME, updateFrequency=update_frequency)
+        update_frequency = FLAGS.update_frequency * 1000
+        logging.info('Initializing DCGM with update frequency={} ms'.format(FLAGS.update_frequency))
+        DcgmReader.__init__(self, fieldIds=list(FIELDS_TO_OC.keys()), 
+                            fieldGroupName=FIELD_GROUP_NAME, 
+                            updateFrequency=FLAGS.update_frequency * 1000)
+
+        self.counter = 0
+        self.c1009_total = 0
+        self.c1011_total = 0
+
+    def _define_oc_metrics():
+        """
+        Creates and registers Open Census metrics.
+        """
+
+
 
     def CustomDataHandler(self, fvs):
         """
         Writes reported field values to Cloud Monitoring.
         """
+        #for gpuId in fvs.keys():
+        #    gpuFv = fvs[gpuId]
+        #    print(gpuFv)
+        #    print('*****************')
+        print("**** Data handler called")
+        gpuFv = fvs[0]
+        for field, value in fvs[0].items():
+            print(field, value[-1].value)
 
-        for gpuId in fvs.keys():
-            gpuFv = fvs[gpuId]
-            print(gpuFv)
-            print('*****************')
     
     def LogInfo(self, msg):
         logging.info(msg)  # pylint: disable=no-member

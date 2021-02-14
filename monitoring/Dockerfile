@@ -13,4 +13,4 @@ RUN pip install -r requirements.txt
 COPY dcgm_stackdriver.py .
 #ENTRYPOINT ["python", "monitor_gpu.py"]
 ENV PYTHONPATH=/usr/local/dcgm/bindings
-ENTRYPOINT ["python2"]
+ENTRYPOINT ["python2", "dcgm_stackdriver.py"]
