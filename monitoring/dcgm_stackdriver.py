@@ -99,21 +99,21 @@ FIELDS_TO_OC = {
             'units': 'ratio',
             'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
         },
-    dcgm_fields.DCGM_FI_PROF_SM_ACTIVE:
+    dcgm_fields.DCGM_FI_PROF_SM_ACTIVE: # 1
         {
             'name': 'sm_active',
             'desc': 'ratio of cycles an SM has at least 1 warp assigned',
             'units': 'ratio',
             'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
         },
-    dcgm_fields.DCGM_FI_PROF_SM_OCCUPANCY:
+    dcgm_fields.DCGM_FI_PROF_SM_OCCUPANCY: # 1
         {
             'name': 'sm_occupancy',
             'desc': 'ratio of number of warps resident on an SM',
             'units': 'ratio',
             'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
         },
-    dcgm_fields.DCGM_FI_PROF_PIPE_TENSOR_ACTIVE:
+    dcgm_fields.DCGM_FI_PROF_PIPE_TENSOR_ACTIVE: # 2
         {
             'name': 'tensor_active',
             'desc': 'ratio of cycles the tensor cores are active',
