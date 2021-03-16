@@ -14,6 +14,7 @@
 
 
 import pytest
+import time
 
 import dcgm_fields
 from dcgm_stackdriver import DcgmStackdriver
@@ -50,6 +51,14 @@ def reader():
 
 
 def test_dcgmstackdriver_process(reader):
-    print("hello")
+
+    wait_interval = 5
+    count = 500 
+
+    print('starting monitoring')
+    for i in range(count):
+        reader.Process()
+        time.sleep(wait_interval)
+    print('stopped monitoring')
 
     assert True

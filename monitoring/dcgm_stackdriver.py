@@ -180,6 +180,8 @@ class DcgmStackdriver(DcgmReader):
                             fieldGroupName=FIELD_GROUP_NAME, 
                             updateFrequency=update_frequency * 1000 * 1000)
 
+        self.previous_ts = 0.0
+
 
     def _define_oc_metrics():
         """
@@ -196,11 +198,14 @@ class DcgmStackdriver(DcgmReader):
         #    gpuFv = fvs[gpuId]
         #    print(gpuFv)
         #    print('*****************')
-        print("**** Data handler called")
         gpuFv = fvs[0]
-        for field, value in fvs[0].items():
-            print(field, value[-1].value)
-
+        #for field_id, value in fvs[0].items():
+        #    print(field_id, self.m_fieldIdToInfo[field_id].tag, value[-1].value)
+        field = fvs[0][1002][-1] 
+        if self.previous_ts == field.ts:
+            print("Duplicate detected") 
+        self.previous_ts = field.ts
+        #print(self.m_fieldIdToInfo[1002].tag, field.ts, field.value) 
     
     def LogInfo(self, msg):
         logging.info(msg)  # pylint: disable=no-member

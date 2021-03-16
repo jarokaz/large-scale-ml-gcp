@@ -12,7 +12,7 @@ def main(argv):
     del argv
 
     client = monitoring_v3.MetricServiceClient()
-    project_name = f"projects/{FLAGS.project_id}"
+    project_name = "projects/{}".format(FLAGS.project_id)
     for descriptor in client.list_metric_descriptors(name=project_name):
         print(descriptor.name)
 
