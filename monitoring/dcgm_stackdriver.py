@@ -178,17 +178,7 @@ class DcgmStackdriver(DcgmReader):
         of DCGM watched fields/
         """
 
-        print('In _create_time_series')
-
-
-
-    def CustomDataHandler(self, fvs):
-        """
-        Writes reported field values to Cloud Monitoring.
-        """
-
-        time_series = self._create_time_series(fvs)
-        #for gpuId in fvs.keys():
+            #for gpuId in fvs.keys():
         #    gpuFv = fvs[gpuId]
         #    print(gpuFv)
         #    print('*****************')
@@ -200,8 +190,33 @@ class DcgmStackdriver(DcgmReader):
         #    print("Duplicate detected") 
         #self.previous_ts = field.ts
         #print(self.m_fieldIdToInfo[1002].tag, field.ts, field.value)
-        # 
+        #
 
+        field = fvs[0][1002][-1]
+        print(field.ts, field.value)
+
+        return None
+
+        series = monitoring_v3.types.TimeSeries()
+        series.metric.type = 'custom/googleapis.com/gce/gpu/sm_active'
+        series.resource.type = 'gce_instance'
+        series.resource.labels['instance_id'] = instance_id
+        series.resource.labels['zone'] = zone
+        series.resource.labels['project_id'] = project_id
+
+        point = series.points.add()
+        point.value.int64_value = value
+        point.interval.end_time.seconds = seconds
+        point.interval.end_time.nanos = nanos
+
+
+    def CustomDataHandler(self, fvs):
+        """
+        Writes reported field values to Cloud Monitoring.
+        """
+
+        time_series = self._create_time_series(fvs)
+    
     
     
     def LogInfo(self, msg):
@@ -225,7 +240,7 @@ def main(argv):
         
         nexttime = time.time()
         try:
-            while False:
+            while True:
             #while True:
                 dcgm_reader.Process()
                 nexttime += FLAGS.update_interval
