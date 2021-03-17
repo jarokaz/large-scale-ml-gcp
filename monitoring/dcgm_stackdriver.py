@@ -152,17 +152,16 @@ class DcgmStackdriver(DcgmReader):
                             updateFrequency=update_frequency * 1000 * 1000)
         
         self._fields_to_watch = fields_to_watch
-        self._client =  monitoring_v3.MetricServiceClient()
         self._project_id = project_id
         self._resource_type = 'gce_instance'
-
         self._zone = 'us-west1-b'
         self._project_id = 'jk-mlops-dev'
         self._instance_id = '284365999706661199'
+
+        self._client =  monitoring_v3.MetricServiceClient()
+        self._project_name = self._client.project_path(self._project_id)
         
         self._create_sd_metric_descriptors()
-
-
         self._counter = 0
     
     def _create_sd_metric_descriptors(self):
@@ -177,6 +176,20 @@ class DcgmStackdriver(DcgmReader):
             descriptor.value_type =  item['value_type']
             descriptor.description = item['desc']
             descriptor = self._client.create_metric_descriptor(project_name, descriptor)
+
+    def _construct_sd_series(self, field_id, field_time_series):
+        """Constructs SD time series from the DCGM field time_series."""
+
+        series = monitoring_v3.types.TimeSeries()
+
+        field_value = field_time_series[-1].value
+        print(field_id, field_value)
+
+        return series
+
+
+
+
 
     def _create_time_series(self, fvs):
         """
@@ -208,8 +221,18 @@ class DcgmStackdriver(DcgmReader):
         value = int(field.value * 100)
         seconds = timestamp // 10**6
         nanos = (timestamp % 10**6) * 10**3
+
+        print('*****')
         
-        project_name = self._client.project_path(self._project_id)
+        time_series = []
+        #for gpu in fvs:
+        for gpu in [0]:
+            for field_id, field_time_series in fvs[gpu].items():
+                series = self._construct_sd_series(field_id, field_time_series)
+                time_series.append(series)
+
+        return
+        
 
         series = monitoring_v3.types.TimeSeries()
         series.metric.type = 'custom.googleapis.com/gce/gpu/sm_active'
@@ -227,12 +250,10 @@ class DcgmStackdriver(DcgmReader):
 
 
         print('**********')
-        if self._counter > 1:       
-            print(point)
-            self._client.create_time_series(
-                name=project_name, 
-                time_series=time_series
-                )
+        print(point)
+        self._client.create_time_series(
+            name=project_name, 
+            time_series=time_series)
 
 
     def CustomDataHandler(self, fvs):
@@ -241,7 +262,8 @@ class DcgmStackdriver(DcgmReader):
         """
 
         self._counter += 1 
-        time_series = self._create_time_series(fvs)
+        if self._counter > 1:
+            time_series = self._create_time_series(fvs)
     
     
     
