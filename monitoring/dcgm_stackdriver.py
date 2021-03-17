@@ -144,16 +144,16 @@ class DcgmStackdriver(DcgmReader):
     Custom DCGM reader that pushes DCGM metrics to GCP Cloud Monitoring
     """
  
-    def __init__(self, update_frequency, fields_to_watch):
+    def __init__(self, update_frequency, fields_to_watch, project_id):
        
         DcgmReader.__init__(self, fieldIds=fields_to_watch.keys(), 
                             fieldGroupName=FIELD_GROUP_NAME, 
                             updateFrequency=update_frequency * 1000 * 1000)
         
         self._fields_to_watch = fields_to_watch
+        self._client =  monitoring_v3.MetricServiceClient()
+        self._project_id = project_id
         
-        # If the identical metrics descriptors already exist the following
-        # call will have no effect
         self._create_sd_metric_descriptors()
 
 
@@ -163,9 +163,14 @@ class DcgmStackdriver(DcgmReader):
         """
         Creates SD metric descriptors for the watched DCGM fields.
         """
-        
+        project_name = self._client.project_path(self._project_id) 
         for key, item in self._fields_to_watch.items():
-            print(key, item['name'])
+            descriptor = monitoring_v3.types.MetricDescriptor()
+            descriptor.type = 'custom.googleapis.com/{}'.format(item['name'])
+            descriptor.metric_kind = item['metric_kind'] 
+            descriptor.value_type =  item['value_type']
+            descriptor.description = item['desc']
+            descriptor = self._client.create_metric_descriptor(project_name, descriptor)
 
     def _create_time_series(self, fvs):
         """
@@ -215,11 +220,13 @@ def main(argv):
     logging.info('Entering monitoring loop with update interval: ' + str(FLAGS.update_interval))
     
     with DcgmStackdriver(fields_to_watch=DCGM_FIELDS, 
-                         update_frequency=FLAGS.update_interval) as dcgm_reader:
+                         update_frequency=FLAGS.update_interval,
+                         project_id=FLAGS.project_id) as dcgm_reader:
         
         nexttime = time.time()
         try:
-            while True:
+            while False:
+            #while True:
                 dcgm_reader.Process()
                 nexttime += FLAGS.update_interval
                 sleep_time = nexttime - time.time() 
