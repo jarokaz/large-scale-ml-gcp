@@ -28,143 +28,115 @@ from DcgmReader import DcgmReader
 from google.cloud import monitoring_v3
 
 
-
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('sampling_interval', 2, 'Sampling interval for collecting metrics - seconds', 
-                     lower_bound=1)
-flags.DEFINE_integer('update_frequency', 1000, 'DCGM update frequency - miliseconds seconds', 
-                     lower_bound=1)
-flags.DEFINE_integer('reporting_interval', 30, 'Reporting interval to Cloud Monitoring - seconds', 
-                     lower_bound=10)
+flags.DEFINE_integer('update_interval', 10000, 'DCGM update frequency - miliseconds seconds', 
+                     lower_bound=10000)
+
 flags.DEFINE_string('project_id', None, 'GCP Project ID')
 flags.mark_flag_as_required('project_id')
 
-# Mapping DCGM fields to OC metrics
-FIELDS_TO_SD = {
-    dcgm_fields.DCGM_FI_DEV_POWER_USAGE:
-        {
-            'name': 'power_usage',
-            'desc': 'power usage',
-            'metric_kind': 'Watts',
-            'buckets': [], 
-        },
+# DCGM fields to SD metrics mapping
+DCGM_FIELDS = {
+    # Equivalents of the basic metrics in nvidia-smi
     dcgm_fields.DCGM_FI_DEV_GPU_UTIL:
         {
-            'name': 'gpu_utilization',
+            'name': 'gce/gpu/utilization',
             'desc': 'GPU utilization',
-            'units': '%',
-            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101],
-        },
-    dcgm_fields.DCGM_FI_DEV_MEM_COPY_UTIL:
-        {
-            'name': 'mem_cpu_utilization',
-            'desc': 'memory copy utilization',
-            'units': '%',
-            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101],
-        },
-    dcgm_fields.DCGM_FI_PROF_DRAM_ACTIVE:
-        {
-            'name': 'memory_active',
-            'desc': 'ratio of cycles the device memory inteface is active sending or receiving data',
-            'units': 'ratio',
-            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101],
-        },
-    dcgm_fields.DCGM_FI_DEV_FB_TOTAL:
-        {
-            'name': 'fb_total',
-            'desc': 'Total framebuffer memory',
-            'units': 'MBs',
-        },
-    dcgm_fields.DCGM_FI_DEV_FB_FREE:
-        {
-            'name': 'fb_free',
-            'desc': 'Free framebuffer memory',
-            'units': 'MBs',
+            'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
         },
     dcgm_fields.DCGM_FI_DEV_FB_USED:
         {
-            'name': 'fb_used',
-            'desc': 'Used framebuffer memory',
-            'units': 'MBs',
+            'name': 'gce/gpu/mem_used',
+            'desc': 'GPU memory used',
+            'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
         },
+    dcgm_fields.DCGM_FI_DEV_POWER_USAGE:
+        {
+            'name': 'gce/gpu/power_usage',
+            'desc': 'Power usage',
+            'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+        },
+    # Profiling metrics recommended by NVidia
     dcgm_fields.DCGM_FI_PROF_GR_ENGINE_ACTIVE:
         {
-            'name': 'gr_engine_active',
-            'desc': 'ratio of time the graphics engine is active',
-            'units': 'ratio',
-            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
+            'name': 'gce/gpu/gr_engine_active',
+            'desc': 'Ratio of time the graphics engine is active',
+            'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
         },
-    dcgm_fields.DCGM_FI_PROF_SM_ACTIVE: # 1
+    dcgm_fields.DCGM_FI_PROF_SM_ACTIVE: 
         {
-            'name': 'sm_active',
-            'desc': 'ratio of cycles an SM has at least 1 warp assigned',
-            'units': 'ratio',
-            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
+            'name': 'gce/gpu/sm_active',
+            'desc': 'Ratio of cycles an SM has at least 1 warp assigned',
+            'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
         },
-    dcgm_fields.DCGM_FI_PROF_SM_OCCUPANCY: # 1
+    dcgm_fields.DCGM_FI_PROF_SM_OCCUPANCY: 
         {
-            'name': 'sm_occupancy',
-            'desc': 'ratio of number of warps resident on an SM',
-            'units': 'ratio',
-            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
+            'name': 'gce/gpu/sm_occupancy',
+            'desc': 'Ratio of number of warps resident on an SM',
+            'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
         },
-    dcgm_fields.DCGM_FI_PROF_PIPE_TENSOR_ACTIVE: # 2
+    dcgm_fields.DCGM_FI_PROF_DRAM_ACTIVE:
         {
-            'name': 'tensor_active',
-            'desc': 'ratio of cycles the tensor cores are active',
-            'units': 'ratio',
-            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
+            'name': 'gce/gpu/memory_active',
+            'desc': 'Ratio of cycles the device memory inteface is active sending or receiving data',
+            'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,  
         },
-    dcgm_fields.DCGM_FI_PROF_PIPE_FP64_ACTIVE:
+    dcgm_fields.DCGM_FI_PROF_PIPE_TENSOR_ACTIVE: 
         {
-            'name': 'fp64_active',
-            'desc': 'ratio of cycles the FP64 cores are active',
-            'units': 'ratio',
-            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
+            'name': 'gce/gpu/tensor_active',
+            'desc': 'Ratio of cycles the tensor cores are active',
+            'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,  
         },
     dcgm_fields.DCGM_FI_PROF_PIPE_FP32_ACTIVE:
         {
-            'name': 'fp32_active',
-            'desc': 'ratio of cycles the FP32 cores are active',
-            'units': 'ratio',
-            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
-        },
-    dcgm_fields.DCGM_FI_PROF_PIPE_FP16_ACTIVE:
-        {
-            'name': 'fp16_active',
-            'desc': 'ratio of cycles the FP16 cores are active',
-            'units': 'ratio',
-            'buckets': [11, 21, 31, 41, 51, 61, 71, 81, 91, 101], 
+            'name': 'gce/gpu/fp32_active',
+            'desc': 'Ratio of cycles the FP32 cores are active',
+            'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,  
         },
     dcgm_fields.DCGM_FI_PROF_PCIE_TX_BYTES:
         {
-            'name': 'pcie_tx_throughput',
+            'name': 'gce/gpu/pcie_tx_throughput',
             'desc': 'PCIE transmit througput',
-            'units': 'bytes per second',
-            'buckets': [], 
+            'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
         },
     dcgm_fields.DCGM_FI_PROF_PCIE_RX_BYTES:
         {
-            'name': 'pcie_rx_throughput',
+            'name': 'gce/gpu/pcie_rx_throughput',
             'desc': 'PCIE receive througput',
-            'units': 'bytes per second',
-            'buckets': [], 
+            'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
         },
     dcgm_fields.DCGM_FI_PROF_NVLINK_TX_BYTES:
         {
-            'name': 'nvlink_tx_throughput',
+            'name': 'gce/gpu/nvlink_tx_throughput',
             'desc': 'NVLink transmit througput',
-            'units': 'bytes per second',
-            'buckets': [], 
+            'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
         },
     dcgm_fields.DCGM_FI_PROF_NVLINK_RX_BYTES:
         {
-            'name': 'nvlink_rx_throughput',
+            'name': 'gce/gpu/nvlink_rx_throughput',
             'desc': 'NVLink receive througput',
-            'units': 'bytes per second',
-            'buckets': [], 
+            'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
         },
+    # Future optional metrics. This metrics cannot be retrieved
+    # together with the core metrics without a perf/accuracy penalty.
+    # They could be used as drill down metrics
+    # dcgm_fields.DCGM_FI_DEV_MEM_COPY_UTIL:
+    # dcgm_fields.DCGM_FI_PROF_PIPE_FP64_ACTIVE:
+    # dcgm_fields.DCGM_FI_PROF_PIPE_FP16_ACTIVE:
 }
 
 
@@ -179,8 +151,6 @@ class DcgmStackdriver(DcgmReader):
         DcgmReader.__init__(self, fieldIds=field_ids, 
                             fieldGroupName=FIELD_GROUP_NAME, 
                             updateFrequency=update_frequency * 1000 * 1000)
-
-        self.previous_ts = 0.0
 
 
     def _define_oc_metrics():
@@ -220,10 +190,10 @@ def main(argv):
     logging.info("main()")
     logging.info("Project ID:" + FLAGS.project_id)
 
-    logging.info('Entering monitoring loop with sampling interval: ' + str(FLAGS.sampling_interval))
+    logging.info('Entering monitoring loop with update interval: ' + str(FLAGS.update_interval))
     
-    #tmap = tags.tag_map.TagMap()
-    #tmap.insert(key_device, tags.tag_value.TagValue("0"))
+    for key, item in DCGM_FIELDS.items():
+        print(key, item['name']) 
 
 
     return
