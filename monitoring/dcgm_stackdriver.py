@@ -30,11 +30,7 @@ from google.cloud import monitoring_v3
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('update_interval', 10000, 'DCGM update frequency - miliseconds seconds', 
-                     lower_bound=10000)
 
-flags.DEFINE_string('project_id', None, 'GCP Project ID')
-flags.mark_flag_as_required('project_id')
 
 # DCGM fields to SD metrics mapping
 DCGM_FIELDS = {
@@ -147,16 +143,37 @@ class DcgmStackdriver(DcgmReader):
     """
     Custom DCGM reader that pushes DCGM metrics to GCP Cloud Monitoring
     """
-    def __init__(self, update_frequency, field_ids):
-        DcgmReader.__init__(self, fieldIds=field_ids, 
+ 
+    def __init__(self, update_frequency, fields_to_watch):
+       
+        DcgmReader.__init__(self, fieldIds=fields_to_watch.keys(), 
                             fieldGroupName=FIELD_GROUP_NAME, 
                             updateFrequency=update_frequency * 1000 * 1000)
+        
+        self._fields_to_watch = fields_to_watch
+        
+        # If the identical metrics descriptors already exist the following
+        # call will have no effect
+        self._create_sd_metric_descriptors()
 
 
-    def _define_oc_metrics():
+        self._counter = 0
+    
+    def _create_sd_metric_descriptors(self):
         """
-        Creates and registers Open Census metrics.
+        Creates SD metric descriptors for the watched DCGM fields.
         """
+        
+        for key, item in self._fields_to_watch.items():
+            print(key, item['name'])
+
+    def _create_time_series(self, fvs):
+        """
+        Calls SD to create time series based on the latest values
+        of DCGM watched fields/
+        """
+
+        print('In _create_time_series')
 
 
 
@@ -164,18 +181,23 @@ class DcgmStackdriver(DcgmReader):
         """
         Writes reported field values to Cloud Monitoring.
         """
+
+        time_series = self._create_time_series(fvs)
         #for gpuId in fvs.keys():
         #    gpuFv = fvs[gpuId]
         #    print(gpuFv)
         #    print('*****************')
-        gpuFv = fvs[0]
+        #gpuFv = fvs[0]
         #for field_id, value in fvs[0].items():
         #    print(field_id, self.m_fieldIdToInfo[field_id].tag, value[-1].value)
-        field = fvs[0][1002][-1] 
-        if self.previous_ts == field.ts:
-            print("Duplicate detected") 
-        self.previous_ts = field.ts
-        #print(self.m_fieldIdToInfo[1002].tag, field.ts, field.value) 
+        #field = fvs[0][1002][-1] 
+        #if self.previous_ts == field.ts:
+        #    print("Duplicate detected") 
+        #self.previous_ts = field.ts
+        #print(self.m_fieldIdToInfo[1002].tag, field.ts, field.value)
+        # 
+
+    
     
     def LogInfo(self, msg):
         logging.info(msg)  # pylint: disable=no-member
@@ -192,35 +214,26 @@ def main(argv):
 
     logging.info('Entering monitoring loop with update interval: ' + str(FLAGS.update_interval))
     
-    for key, item in DCGM_FIELDS.items():
-        print(key, item['name']) 
-
-
-    return
-    
-    with DcgmStackdriver() as dcgm_reader:
+    with DcgmStackdriver(fields_to_watch=DCGM_FIELDS, 
+                         update_frequency=FLAGS.update_interval) as dcgm_reader:
+        
+        nexttime = time.time()
         try:
             while True:
-                #metrics = get_gpu_metrics()
-                #for device_index in range(len(metrics)):
-                #    mmap = stats.stats.stats_recorder.new_measurement_map()
-                #    
-                #    mmap.measure_int_put(gpu_utilization_ms, metrics[device_index]['utilization']['gpu_util'])
-                #    mmap.measure_int_put(gpu_memory_utilization_ms, metrics[device_index]['utilization']['memory_util'])
-                #    power_percentage = metrics[device_index]['power_readings']['power_draw'] / metrics[device_index]['power_readings']['power_limit']
-                #    #logging.info(round(power_percentage,2))
-                #    mmap.measure_int_put(gpu_power_utilization_ms, round(power_percentage,2))
-                #    
-                #    tmap.update(key_device, tags.tag_value.TagValue(str(device_index)))
-                #    mmap.record(tmap)
-                    #logging.info(mmap)
-                    #logging.info(tmap)
-                
-                time.sleep(FLAGS.sampling_interval)
                 dcgm_reader.Process()
+                nexttime += FLAGS.update_interval
+                sleep_time = nexttime - time.time() 
+                if sleep_time > 0:
+                    print(sleep_time)
+                    time.sleep(sleep_time)
         except KeyboardInterrupt:
-            print("Caught CTRL-C. Exiting ...")
+            logging.info("Caught CTRL-C. Exiting ...")
 
+# Command line parameters
+flags.DEFINE_integer('update_interval', 5, 'Metrics update frequency - seconds', 
+                     lower_bound=5)
+flags.DEFINE_string('project_id', None, 'GCP Project ID')
+flags.mark_flag_as_required('project_id')
 
 if __name__ == '__main__':
     app.run(main)
