@@ -209,9 +209,10 @@ class DcgmStackdriver(DcgmReader):
         seconds = timestamp // 10**6
         nanos = (timestamp % 10**6) * 10**3
         
+        project_name = self._client.project_path(self._project_id)
 
         series = monitoring_v3.types.TimeSeries()
-        series.metric.type = 'custom/googleapis.com/gce/gpu/sm_active'
+        series.metric.type = 'custom.googleapis.com/gce/gpu/sm_active'
         series.resource.type = self._resource_type 
         series.resource.labels['instance_id'] = self._instance_id
         series.resource.labels['zone'] = self._zone
@@ -221,7 +222,17 @@ class DcgmStackdriver(DcgmReader):
         point.value.int64_value = value
         point.interval.end_time.seconds = seconds
         point.interval.end_time.nanos = nanos
-        print(point)
+
+        time_series = [series]
+
+
+        print('**********')
+        if self._counter > 1:       
+            print(point)
+            self._client.create_time_series(
+                name=project_name, 
+                time_series=time_series
+                )
 
 
     def CustomDataHandler(self, fvs):
@@ -229,6 +240,7 @@ class DcgmStackdriver(DcgmReader):
         Writes reported field values to Cloud Monitoring.
         """
 
+        self._counter += 1 
         time_series = self._create_time_series(fvs)
     
     
@@ -254,6 +266,7 @@ def main(argv):
         
         nexttime = time.time()
         try:
+            # Sleep for one interval to allow the DCGM watches to catch up
             while True:
             #while False:
                 dcgm_reader.Process()
