@@ -16,6 +16,7 @@
 reports the stats to Cloud Monitoring"""
 
 import time
+import datetime
 import dcgm_fields
 
 from absl import app
@@ -153,6 +154,11 @@ class DcgmStackdriver(DcgmReader):
         self._fields_to_watch = fields_to_watch
         self._client =  monitoring_v3.MetricServiceClient()
         self._project_id = project_id
+        self._resource_type = 'gce_instance'
+
+        self._zone = 'us-west1-b'
+        self._project_id = 'jk-mlops-dev'
+        self._instance_id = '284365999706661199'
         
         self._create_sd_metric_descriptors()
 
@@ -193,21 +199,29 @@ class DcgmStackdriver(DcgmReader):
         #
 
         field = fvs[0][1002][-1]
-        print(field.ts, field.value)
+        #print(field.ts/(1000.0*1000.0),
+        #      time.time(),
+        #      datetime.datetime.fromtimestamp(field.ts/(1000.0*1000.0)),
+        #      field.value)
 
-        return None
+        timestamp = field.ts
+        value = int(field.value * 100)
+        seconds = timestamp // 10**6
+        nanos = (timestamp % 10**6) * 10**3
+        
 
         series = monitoring_v3.types.TimeSeries()
         series.metric.type = 'custom/googleapis.com/gce/gpu/sm_active'
-        series.resource.type = 'gce_instance'
-        series.resource.labels['instance_id'] = instance_id
-        series.resource.labels['zone'] = zone
-        series.resource.labels['project_id'] = project_id
+        series.resource.type = self._resource_type 
+        series.resource.labels['instance_id'] = self._instance_id
+        series.resource.labels['zone'] = self._zone
+        series.resource.labels['project_id'] = self._project_id
 
         point = series.points.add()
         point.value.int64_value = value
         point.interval.end_time.seconds = seconds
         point.interval.end_time.nanos = nanos
+        print(point)
 
 
     def CustomDataHandler(self, fvs):
@@ -241,12 +255,11 @@ def main(argv):
         nexttime = time.time()
         try:
             while True:
-            #while True:
+            #while False:
                 dcgm_reader.Process()
                 nexttime += FLAGS.update_interval
                 sleep_time = nexttime - time.time() 
                 if sleep_time > 0:
-                    print(sleep_time)
                     time.sleep(sleep_time)
         except KeyboardInterrupt:
             logging.info("Caught CTRL-C. Exiting ...")
