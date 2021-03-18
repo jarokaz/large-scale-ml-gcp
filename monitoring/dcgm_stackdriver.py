@@ -222,11 +222,6 @@ class DcgmStackdriver(DcgmReader):
         point.interval.end_time.nanos = nanos 
 
         sd_value_type = self._fields_to_watch[field_id]['value_type']
-
-        print('*********')
-        print(field_id)
-        print(field_value)
-
         if sd_value_type == monitoring_v3.enums.MetricDescriptor.ValueType.INT64:
             point.value.int64_value = field_value
         elif sd_value_type == monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE:
@@ -269,10 +264,6 @@ class DcgmStackdriver(DcgmReader):
                 if series:
                     time_series.append(series)
         
-        print(time_series)
-
-        return
-
         if time_series:
             try:
                 self._client.create_time_series(
