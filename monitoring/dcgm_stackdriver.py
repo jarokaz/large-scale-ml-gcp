@@ -208,8 +208,6 @@ class DcgmStackdriver(DcgmReader):
     def _add_point(self, series, field_id, field):
         """Adds a point to SD time series."""
 
-       # TODO. Check for blank values
-
         if 'value_converter' in self._fields_to_watch[field_id]:
             field_value = self._fields_to_watch[field_id]['value_converter'](field.value)
         else:
@@ -234,7 +232,7 @@ class DcgmStackdriver(DcgmReader):
             raise TypeError('Unsupported metric type: {}'.format(sd_value_type))
 
 
-    def _construct_sd_series(self, gpu_number, field_id, field_time_series):
+    def _construct_sd_series(field_id, field_time_series, metric_labels):
         """Constructs SD time series from the DCGM field time_series."""
 
         series = None
@@ -245,8 +243,10 @@ class DcgmStackdriver(DcgmReader):
             series.resource.type = self._resource_type
             for label_key, label_value in self._resource_labels.items():
                 series.resource.labels[label_key] = label_value
+
             series.metric.type = self._fields_to_watch[field_id]['name']
-            series.metric.labels['gpu_number'] = str(gpu_number)
+            for label_key, label_value in metric_labels.items():
+                series.metric.labels[label_key] = label_value
             self._add_point(series, field_id, field)
 
         return series
@@ -260,7 +260,8 @@ class DcgmStackdriver(DcgmReader):
         time_series = []
         for gpu in fvs:
             for field_id, field_time_series in fvs[gpu].items():
-                series = self._construct_sd_series(gpu, field_id, field_time_series)
+                metric_labels = {'gpu': gpu}
+                series = self._construct_sd_series(field_id, field_time_series, metric_labels)
                 if series:
                     time_series.append(series)
         
