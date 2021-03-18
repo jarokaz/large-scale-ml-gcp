@@ -293,7 +293,7 @@ def main(argv):
 
 # Command line parameters
 flags.DEFINE_integer('update_interval', 10, 'Metrics update frequency - seconds', 
-                     lower_bound=1)
+                     lower_bound=10)
 flags.DEFINE_string('project_id', None, 'GCP Project ID')
 flags.mark_flag_as_required('project_id')
 
