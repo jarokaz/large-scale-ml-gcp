@@ -29,7 +29,10 @@ from google.cloud import monitoring_v3
 from DcgmReader import DcgmReader
 
 FLAGS = flags.FLAGS
+
 FIELD_GROUP_NAME = 'dcgm_stackdriver'
+GLOBAL_RESOURCE_TYPE = 'global'
+GCE_RESOUCE_TYPE = 'gce_instance'
 
 # DCGM fields to SD metrics mapping
 DCGM_FIELDS = {
@@ -166,7 +169,7 @@ class DcgmStackdriver(DcgmReader):
     Custom DCGM reader that pushes DCGM metrics to GCP Cloud Monitoring
     """
  
-    def __init__(self, update_frequency, fields_to_watch, project_id):
+    def __init__(self, update_frequency, fields_to_watch, project_id, resource_type, resource_labels):
        
         DcgmReader.__init__(self, fieldIds=fields_to_watch.keys(), 
                             fieldGroupName=FIELD_GROUP_NAME, 
@@ -174,14 +177,10 @@ class DcgmStackdriver(DcgmReader):
         
         self._fields_to_watch = fields_to_watch
         self._project_id = project_id
-        self._resource_type = 'gce_instance'
-        self._zone = 'us-west1-b'
-        self._project_id = 'jk-mlops-dev'
-        self._instance_id = '284365999706661199'
-
+        self._resource_type = resource_type
+        self._resource_labels = resource_labels
         self._client =  monitoring_v3.MetricServiceClient()
         self._project_name = self._client.project_path(self._project_id)
-        
         self._create_sd_metric_descriptors()
         self._counter = 0
     
@@ -198,19 +197,19 @@ class DcgmStackdriver(DcgmReader):
             descriptor.description = item['desc']
             descriptor = self._client.create_metric_descriptor(project_name, descriptor)
 
+
     def _construct_sd_series(self, gpu_number, field_id, field_time_series):
         """Constructs SD time series from the DCGM field time_series."""
 
         series = None
         if field_id in self._fields_to_watch.keys():
             series = monitoring_v3.types.TimeSeries()
+            series.resource.type = self._resource_type
+            for label_key, label_value in self._resource_labels.items():
+                series.resource.labels[label_key] = label_value
             series.metric.type = self._fields_to_watch[field_id]['name']
             series.metric.labels['gpu_number'] = str(gpu_number)
-            series.resource.type = self._resource_type 
-            series.resource.labels['instance_id'] = self._instance_id
-            series.resource.labels['zone'] = self._zone
-            series.resource.labels['project_id'] = self._project_id
-
+    
             field_value = self._fields_to_watch[field_id]['value_converter'](field_time_series[-1].value)
             field_timestamp = field_time_series[-1].ts 
             seconds = field_timestamp // 10**6
@@ -273,14 +272,22 @@ def main(argv):
     logging.info("Project ID:" + FLAGS.project_id)
 
     logging.info('Entering monitoring loop with update interval: ' + str(FLAGS.update_interval))
+
+    resource_type = 'gce_instance'
+    resource_labels = {
+        'zone': 'us-west1-b',
+        'project_id': 'jk-mlops-dev',
+        'instance_id': '284365999706661199'
+    }
     
     with DcgmStackdriver(fields_to_watch=DCGM_FIELDS, 
                          update_frequency=FLAGS.update_interval,
-                         project_id=FLAGS.project_id) as dcgm_reader:
+                         project_id=FLAGS.project_id,
+                         resource_type=resource_type,
+                         resource_labels=resource_labels) as dcgm_reader:
         
         nexttime = time.time()
         try:
-            # Sleep for one interval to allow the DCGM watches to catch up
             while True:
             #while False:
                 dcgm_reader.Process()
