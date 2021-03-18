@@ -342,13 +342,6 @@ def main(argv):
     else:
         raise ValueError('Unsupported resource type: {}'.format(FLAGS.resource_type))
 
-
-    print(resource_labels)
-    print(resource_type)
-
-
-    return
-    
     with DcgmStackdriver(fields_to_watch=DCGM_FIELDS, 
                          update_frequency=FLAGS.update_interval,
                          project_id=FLAGS.project_id,
