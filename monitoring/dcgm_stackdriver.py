@@ -21,17 +21,13 @@ import dcgm_fields
 
 from absl import app
 from absl import flags
-#from absl import logging
-import logging
+from absl import logging
+from google.cloud import monitoring_v3
 
 from DcgmReader import DcgmReader
 
-from google.cloud import monitoring_v3
-
-
 FLAGS = flags.FLAGS
-
-
+FIELD_GROUP_NAME = 'dcgm_stackdriver'
 
 # DCGM fields to SD metrics mapping
 DCGM_FIELDS = {
@@ -163,9 +159,6 @@ DCGM_FIELDS = {
 }
 
 
-
-FIELD_GROUP_NAME = 'dcgm_stackdriver'
-
 class DcgmStackdriver(DcgmReader):
     """
     Custom DCGM reader that pushes DCGM metrics to GCP Cloud Monitoring
@@ -203,20 +196,31 @@ class DcgmStackdriver(DcgmReader):
             descriptor.description = item['desc']
             descriptor = self._client.create_metric_descriptor(project_name, descriptor)
 
-    def _construct_sd_series(self, field_id, field_time_series):
+    def _construct_sd_series(self, gpu_number, field_id, field_time_series):
         """Constructs SD time series from the DCGM field time_series."""
 
-        series = monitoring_v3.types.TimeSeries()
-        #descriptor.type = 'custom.googleapis.com/{}'.format(item['name'])
+        series = None
+        if field_id in self._fields_to_watch.keys():
+            series = monitoring_v3.types.TimeSeries()
+            series.metric.type = self._fields_to_watch[field_id]['name']
+            series.metric.labels['gpu_number'] = str(gpu_number)
+            series.resource.type = self._resource_type 
+            series.resource.labels['instance_id'] = self._instance_id
+            series.resource.labels['zone'] = self._zone
+            series.resource.labels['project_id'] = self._project_id
 
+            field_value = self._fields_to_watch[field_id]['value_converter'](field_time_series[-1].value)
+            field_timestamp = field_time_series[-1].ts 
+            seconds = field_timestamp // 10**6
+            nanos = (field_timestamp % 10**6) * 10**3
 
-        field_value = self._fields_to_watch[field_id]['value_converter'](field_time_series[-1].value)
-        print(field_id, field_value)
+            point = series.points.add()
+            point.value.int64_value = field_value
+            point.interval.end_time.seconds = seconds
+            point.interval.end_time.nanos = nanos
+            print(series)
 
         return series
-
-
-
 
 
     def _create_time_series(self, fvs):
@@ -239,25 +243,15 @@ class DcgmStackdriver(DcgmReader):
         #print(self.m_fieldIdToInfo[1002].tag, field.ts, field.value)
         #
 
-        field = fvs[0][1002][-1]
-        #print(field.ts/(1000.0*1000.0),
-        #      time.time(),
-        #      datetime.datetime.fromtimestamp(field.ts/(1000.0*1000.0)),
-        #      field.value)
-
-        timestamp = field.ts
-        value = int(field.value * 100)
-        seconds = timestamp // 10**6
-        nanos = (timestamp % 10**6) * 10**3
-
-        print('*****')
         
         time_series = []
         #for gpu in fvs:
         for gpu in [0]:
             for field_id, field_time_series in fvs[gpu].items():
-                series = self._construct_sd_series(field_id, field_time_series)
-                time_series.append(series)
+                series = self._construct_sd_series(gpu, field_id, field_time_series)
+                if series:
+                    time_series.append(series)
+
 
         return
         
@@ -269,10 +263,7 @@ class DcgmStackdriver(DcgmReader):
         series.resource.labels['zone'] = self._zone
         series.resource.labels['project_id'] = self._project_id
 
-        point = series.points.add()
-        point.value.int64_value = value
-        point.interval.end_time.seconds = seconds
-        point.interval.end_time.nanos = nanos
+
 
         time_series = [series]
 
