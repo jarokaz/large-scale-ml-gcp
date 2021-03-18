@@ -218,32 +218,14 @@ class DcgmStackdriver(DcgmReader):
             point.value.int64_value = field_value
             point.interval.end_time.seconds = seconds
             point.interval.end_time.nanos = nanos
-            print(series)
 
         return series
-
 
     def _create_time_series(self, fvs):
         """
         Calls SD to create time series based on the latest values
         of DCGM watched fields/
         """
-
-            #for gpuId in fvs.keys():
-        #    gpuFv = fvs[gpuId]
-        #    print(gpuFv)
-        #    print('*****************')
-        #gpuFv = fvs[0]
-        #for field_id, value in fvs[0].items():
-        #    print(field_id, self.m_fieldIdToInfo[field_id].tag, value[-1].value)
-        #field = fvs[0][1002][-1] 
-        #if self.previous_ts == field.ts:
-        #    print("Duplicate detected") 
-        #self.previous_ts = field.ts
-        #print(self.m_fieldIdToInfo[1002].tag, field.ts, field.value)
-        #
-
-        
         time_series = []
         #for gpu in fvs:
         for gpu in [0]:
@@ -252,37 +234,27 @@ class DcgmStackdriver(DcgmReader):
                 if series:
                     time_series.append(series)
 
-
-        return
+        if time_series:
+            try:
+                self._client.create_time_series(
+                    name=self._project_name, 
+                    time_series=time_series)
+            except exceptions.GoogleAPICallError as err:
+                logging.info(err)
+            except exceptions.RetryError as err:
+                logging.info('Retry attempts to create time series failed')
+            except Exception:    
+                logging.info('Create_time_series: exception encountered')
         
-
-        series = monitoring_v3.types.TimeSeries()
-        series.metric.type = 'custom.googleapis.com/gce/gpu/sm_active'
-        series.resource.type = self._resource_type 
-        series.resource.labels['instance_id'] = self._instance_id
-        series.resource.labels['zone'] = self._zone
-        series.resource.labels['project_id'] = self._project_id
-
-
-
-        time_series = [series]
-
-
-        print('**********')
-        print(point)
-        self._client.create_time_series(
-            name=project_name, 
-            time_series=time_series)
-
-
     def CustomDataHandler(self, fvs):
         """
         Writes reported field values to Cloud Monitoring.
         """
 
         self._counter += 1 
+        # Skip the first measurement to avoid duplicates in DCGM
         if self._counter > 1:
-            time_series = self._create_time_series(fvs)
+            self._create_time_series(fvs)
     
     
     
