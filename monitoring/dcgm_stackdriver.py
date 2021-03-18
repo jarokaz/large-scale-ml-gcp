@@ -43,7 +43,7 @@ DCGM_FIELDS = {
             'desc': 'GPU utilization',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,
-            'dcgm_units': '%',
+            'sd_units': '%',
             #'value_converter': (lambda x: x) 
         },
     dcgm_fields.DCGM_FI_DEV_FB_USED: # 252
@@ -52,7 +52,7 @@ DCGM_FIELDS = {
             'desc': 'GPU memory used',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
-            'dcgm_units': 'MBs',
+            'sd_units': 'MBy',
             #'value_converter': (lambda x: x)
         },
     dcgm_fields.DCGM_FI_DEV_POWER_USAGE: #155
@@ -61,7 +61,7 @@ DCGM_FIELDS = {
             'desc': 'Power usage',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE, 
-            'dcgm_units': 'Watts',
+            'sd_units': 'watt',
             #'value_converter': (lambda x: int(x))
         },
     # Profiling metrics recommended by NVidia
@@ -72,7 +72,7 @@ DCGM_FIELDS = {
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             #'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE, 
-            'dcgm_units': 'ratio',
+            'sd_units': 'ratio',
             #'value_converter': (lambda x: int(100 * x))
         },
     dcgm_fields.DCGM_FI_PROF_SM_ACTIVE: # 1002 
@@ -82,7 +82,7 @@ DCGM_FIELDS = {
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
  #           'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE,  
-            'dcgm_units': 'ratio',
+            'sd_units': 'ratio',
             #'value_converter': (lambda x: int(100 * x))
         },
     dcgm_fields.DCGM_FI_PROF_SM_OCCUPANCY: # 1003
@@ -92,7 +92,7 @@ DCGM_FIELDS = {
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
 #            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE, 
-            'dcgm_units': 'ratio',
+            'sd_units': 'ratio',
             #'value_converter': (lambda x: int(100 * x))            
         },
     dcgm_fields.DCGM_FI_PROF_DRAM_ACTIVE: # 1005
@@ -102,7 +102,7 @@ DCGM_FIELDS = {
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
 #            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE, 
-            'dcgm_units': 'ratio',
+            'sd_units': 'ratio',
             #'value_converter': (lambda x: int(100 * x))
         },
     dcgm_fields.DCGM_FI_PROF_PIPE_TENSOR_ACTIVE: # 1004 
@@ -112,7 +112,7 @@ DCGM_FIELDS = {
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
 #            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,  
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE, 
-            'dcgm_units': 'ratio',
+            'sd_units': 'ratio',
             #'value_converter': (lambda x: int(100 * x))
         },
     dcgm_fields.DCGM_FI_PROF_PIPE_FP32_ACTIVE: # 1007
@@ -122,7 +122,7 @@ DCGM_FIELDS = {
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
 #            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE, 
-            'dcgm_units': 'ratio',
+            'sd_units': 'ratio',
             #'value_converter': (lambda x: int(100 * x))
         },
     dcgm_fields.DCGM_FI_PROF_PCIE_TX_BYTES: # 1011
@@ -131,7 +131,7 @@ DCGM_FIELDS = {
             'desc': 'PCIE transmit througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
-            'dcgm_units': 'Bytes per second',
+            'sd_units': 'number',
             #'value_converter': (lambda x: x) 
         },
     dcgm_fields.DCGM_FI_PROF_PCIE_RX_BYTES:
@@ -140,7 +140,7 @@ DCGM_FIELDS = {
             'desc': 'PCIE receive througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
-            'dcgm_units': 'Bytes per second',
+            'sd_units': 'number',
             #'value_converter': (lambda x: x) 
         },
     dcgm_fields.DCGM_FI_PROF_NVLINK_TX_BYTES:
@@ -149,7 +149,7 @@ DCGM_FIELDS = {
             'desc': 'NVLink transmit througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
-            'dcgm_units': 'Bytes per second',
+            'sd_units': 'number',
             #'value_converter': (lambda x: x) 
         },
     dcgm_fields.DCGM_FI_PROF_NVLINK_RX_BYTES:
@@ -158,7 +158,7 @@ DCGM_FIELDS = {
             'desc': 'NVLink receive througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
-            'dcgm_units': 'Bytes per second',
+            'sd_units': 'number',
             #'value_converter': (lambda x: x) 
         },
     # Future optional metrics. This metrics cannot be retrieved
@@ -202,6 +202,7 @@ class DcgmStackdriver(DcgmReader):
             descriptor.metric_kind = item['metric_kind'] 
             descriptor.value_type =  item['value_type']
             descriptor.description = item['desc']
+            descriptor.unit = item['sd_units']
             descriptor = self._client.create_metric_descriptor(project_name, descriptor)
 
 
