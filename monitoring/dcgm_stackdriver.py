@@ -15,6 +15,7 @@
 """A command line utility that monitors attached GPUs and 
 reports the stats to Cloud Monitoring"""
 
+import requests
 import time
 import datetime
 import dcgm_fields
@@ -39,7 +40,7 @@ DCGM_FIELDS = {
     # Equivalents of the basic metrics in nvidia-smi
     dcgm_fields.DCGM_FI_DEV_GPU_UTIL: # 203
         {
-            'name': 'custom.googleapis.com/gce/gpu/utilization',
+            'name': 'custom.googleapis.com/gce/gpu-test/utilization',
             'desc': 'GPU utilization',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,
@@ -48,7 +49,7 @@ DCGM_FIELDS = {
         },
     dcgm_fields.DCGM_FI_DEV_FB_USED: # 252
         {
-            'name': 'custom.googleapis.com/gce/gpu/mem_used',
+            'name': 'custom.googleapis.com/gce/gpu-test/mem_used',
             'desc': 'GPU memory used',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
@@ -57,7 +58,7 @@ DCGM_FIELDS = {
         },
     dcgm_fields.DCGM_FI_DEV_POWER_USAGE: #155
         {
-            'name': 'custom.googleapis.com/gce/gpu/power_usage',
+            'name': 'custom.googleapis.com/gce/gpu-test/power_usage',
             'desc': 'Power usage',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE, 
@@ -67,67 +68,61 @@ DCGM_FIELDS = {
     # Profiling metrics recommended by NVidia
     dcgm_fields.DCGM_FI_PROF_GR_ENGINE_ACTIVE: # 1001
         {
-            'name': 'custom.googleapis.com/gce/gpu/gr_engine_active',
+            'name': 'custom.googleapis.com/gce/gpu-test/gr_engine_active',
             'desc': 'Ratio of time the graphics engine is active',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
-            #'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE, 
             'sd_units': 'ratio',
             #'value_converter': (lambda x: int(100 * x))
         },
     dcgm_fields.DCGM_FI_PROF_SM_ACTIVE: # 1002 
         {
-            'name': 'custom.googleapis.com/gce/gpu/sm_active',
+            'name': 'custom.googleapis.com/gce/gpu-test/sm_active',
             'desc': 'Ratio of cycles an SM has at least 1 warp assigned',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
- #           'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE,  
             'sd_units': 'ratio',
             #'value_converter': (lambda x: int(100 * x))
         },
     dcgm_fields.DCGM_FI_PROF_SM_OCCUPANCY: # 1003
         {
-            'name': 'custom.googleapis.com/gce/gpu/sm_occupancy',
+            'name': 'custom.googleapis.com/gce/gpu-test/sm_occupancy',
             'desc': 'Ratio of number of warps resident on an SM',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
-#            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE, 
             'sd_units': 'ratio',
             #'value_converter': (lambda x: int(100 * x))            
         },
     dcgm_fields.DCGM_FI_PROF_DRAM_ACTIVE: # 1005
         {
-            'name': 'custom.googleapis.com/gce/gpu/memory_active',
+            'name': 'custom.googleapis.com/gce/gpu-test/memory_active',
             'desc': 'Ratio of cycles the device memory inteface is active sending or receiving data',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
-#            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE, 
             'sd_units': 'ratio',
             #'value_converter': (lambda x: int(100 * x))
         },
     dcgm_fields.DCGM_FI_PROF_PIPE_TENSOR_ACTIVE: # 1004 
         {
-            'name': 'custom.googleapis.com/gce/gpu/tensor_active',
+            'name': 'custom.googleapis.com/gce/gpu-test/tensor_active',
             'desc': 'Ratio of cycles the tensor cores are active',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
-#            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,  
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE, 
             'sd_units': 'ratio',
             #'value_converter': (lambda x: int(100 * x))
         },
     dcgm_fields.DCGM_FI_PROF_PIPE_FP32_ACTIVE: # 1007
         {
-            'name': 'custom.googleapis.com/gce/gpu/fp32_active',
+            'name': 'custom.googleapis.com/gce/gpu-test/fp32_active',
             'desc': 'Ratio of cycles the FP32 cores are active',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
-#            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE, 
             'sd_units': 'ratio',
             #'value_converter': (lambda x: int(100 * x))
         },
     dcgm_fields.DCGM_FI_PROF_PCIE_TX_BYTES: # 1011
         {
-            'name': 'custom.googleapis.com/gce/gpu/pcie_tx_throughput',
+            'name': 'custom.googleapis.com/gce/gpu-test/pcie_tx_throughput',
             'desc': 'PCIE transmit througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
@@ -136,7 +131,7 @@ DCGM_FIELDS = {
         },
     dcgm_fields.DCGM_FI_PROF_PCIE_RX_BYTES:
         {
-            'name': 'custom.googleapis.com/gce/gpu/pcie_rx_throughput',
+            'name': 'custom.googleapis.com/gce/gpu-test/pcie_rx_throughput',
             'desc': 'PCIE receive througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
@@ -145,7 +140,7 @@ DCGM_FIELDS = {
         },
     dcgm_fields.DCGM_FI_PROF_NVLINK_TX_BYTES:
         {
-            'name': 'custom.googleapis.com/gce/gpu/nvlink_tx_throughput',
+            'name': 'custom.googleapis.com/gce/gpu-test/nvlink_tx_throughput',
             'desc': 'NVLink transmit througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
@@ -154,7 +149,7 @@ DCGM_FIELDS = {
         },
     dcgm_fields.DCGM_FI_PROF_NVLINK_RX_BYTES:
         {
-            'name': 'custom.googleapis.com/gce/gpu/nvlink_rx_throughput',
+            'name': 'custom.googleapis.com/gce/gpu-test/nvlink_rx_throughput',
             'desc': 'NVLink receive througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
@@ -168,6 +163,40 @@ DCGM_FIELDS = {
     # dcgm_fields.DCGM_FI_PROF_PIPE_FP64_ACTIVE:
     # dcgm_fields.DCGM_FI_PROF_PIPE_FP16_ACTIVE:
 }
+
+
+_GCP_METADATA_URI = 'http://metadata.google.internal/computeMetadata/v1/'
+_GCP_METADATA_URI_HEADER = {'Metadata-Flavor': 'Google'}
+_GCE_ATTRIBUTES = {
+    'project_id': {
+        'metadata_key': 'project/project-id'
+    },
+    'instance_id': {
+        'metadata_key': 'instance/id',
+    },
+    'zone': {
+        'metadata_key': 'instance/zone',
+        'transformation': 
+            lambda x: x.split('/')[-1]
+    }
+}
+
+def get_gce_resource_labels():
+    """Retrieve GCE metadata and sets GCE instance resource labels."""
+
+    resource_labels = {}
+    for label, gce_metadata in _GCE_ATTRIBUTES.items():
+        response = requests.get(_GCP_METADATA_URI + gce_metadata['metadata_key'], 
+                                headers=_GCP_METADATA_URI_HEADER)
+
+        if 'transformation' in _GCE_ATTRIBUTES[label]:
+            label_value = _GCE_ATTRIBUTES[label]['transformation'](response.text)
+        else:
+            label_value = response.text
+        resource_labels[label] = label_value.decode('utf-8')
+
+    return resource_labels
+
 
 
 class DcgmStackdriver(DcgmReader):
@@ -305,12 +334,20 @@ def main(argv):
 
     logging.info('Entering monitoring loop with update interval: ' + str(FLAGS.update_interval))
 
-    resource_type = 'gce_instance'
-    resource_labels = {
-        'zone': 'us-west1-b',
-        'project_id': 'jk-mlops-dev',
-        'instance_id': '99999'
-    }
+    # Only GCE resource type supported at this point
+    # In future GKE will be added
+    if FLAGS.resource_type == GCE_RESOUCE_TYPE:
+        resource_labels = get_gce_resource_labels()
+        resource_type = GCE_RESOUCE_TYPE
+    else:
+        raise ValueError('Unsupported resource type: {}'.format(FLAGS.resource_type))
+
+
+    print(resource_labels)
+    print(resource_type)
+
+
+    return
     
     with DcgmStackdriver(fields_to_watch=DCGM_FIELDS, 
                          update_frequency=FLAGS.update_interval,
@@ -333,6 +370,7 @@ def main(argv):
 # Command line parameters
 flags.DEFINE_integer('update_interval', 10, 'Metrics update frequency - seconds', 
                      lower_bound=10)
+flags.DEFINE_enum('resource_type', 'gce_instance', ['gce_instance'], 'Stackdriver resource type')
 flags.DEFINE_string('project_id', None, 'GCP Project ID')
 flags.mark_flag_as_required('project_id')
 
