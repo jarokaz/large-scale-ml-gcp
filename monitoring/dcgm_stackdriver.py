@@ -36,97 +36,123 @@ FLAGS = flags.FLAGS
 # DCGM fields to SD metrics mapping
 DCGM_FIELDS = {
     # Equivalents of the basic metrics in nvidia-smi
-    dcgm_fields.DCGM_FI_DEV_GPU_UTIL:
+    dcgm_fields.DCGM_FI_DEV_GPU_UTIL: # 203
         {
-            'name': 'gce/gpu/utilization',
+            'name': 'custom.googleapis.com/gce/gpu/utilization',
             'desc': 'GPU utilization',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
-            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,
+            'dcgm_units': '%',
+            'value_converter': (lambda x: x) 
         },
-    dcgm_fields.DCGM_FI_DEV_FB_USED:
+    dcgm_fields.DCGM_FI_DEV_FB_USED: # 252
         {
-            'name': 'gce/gpu/mem_used',
+            'name': 'custom.googleapis.com/gce/gpu/mem_used',
             'desc': 'GPU memory used',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+            'dcgm_units': 'MBs',
+            'value_converter': (lambda x: x)
         },
-    dcgm_fields.DCGM_FI_DEV_POWER_USAGE:
+    dcgm_fields.DCGM_FI_DEV_POWER_USAGE: #155
         {
-            'name': 'gce/gpu/power_usage',
+            'name': 'custom.googleapis.com/gce/gpu/power_usage',
             'desc': 'Power usage',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+            'dcgm_units': 'Watts',
+            'value_converter': (lambda x: int(x))
         },
     # Profiling metrics recommended by NVidia
-    dcgm_fields.DCGM_FI_PROF_GR_ENGINE_ACTIVE:
+    dcgm_fields.DCGM_FI_PROF_GR_ENGINE_ACTIVE: # 1001
         {
-            'name': 'gce/gpu/gr_engine_active',
+            'name': 'custom.googleapis.com/gce/gpu/gr_engine_active',
             'desc': 'Ratio of time the graphics engine is active',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+            'dcgm_units': 'ratio',
+            'value_converter': (lambda x: int(100 * x))
         },
-    dcgm_fields.DCGM_FI_PROF_SM_ACTIVE: 
+    dcgm_fields.DCGM_FI_PROF_SM_ACTIVE: # 1002 
         {
-            'name': 'gce/gpu/sm_active',
+            'name': 'custom.googleapis.com/gce/gpu/sm_active',
             'desc': 'Ratio of cycles an SM has at least 1 warp assigned',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+            'dcgm_units': 'ratio',
+            'value_converter': (lambda x: int(100 * x))
         },
-    dcgm_fields.DCGM_FI_PROF_SM_OCCUPANCY: 
+    dcgm_fields.DCGM_FI_PROF_SM_OCCUPANCY: # 1003
         {
-            'name': 'gce/gpu/sm_occupancy',
+            'name': 'custom.googleapis.com/gce/gpu/sm_occupancy',
             'desc': 'Ratio of number of warps resident on an SM',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+            'dcgm_units': 'ratio',
+            'value_converter': (lambda x: int(100 * x))            
         },
-    dcgm_fields.DCGM_FI_PROF_DRAM_ACTIVE:
+    dcgm_fields.DCGM_FI_PROF_DRAM_ACTIVE: # 1005
         {
-            'name': 'gce/gpu/memory_active',
+            'name': 'custom.googleapis.com/gce/gpu/memory_active',
             'desc': 'Ratio of cycles the device memory inteface is active sending or receiving data',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
-            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,  
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+            'dcgm_units': 'ratio',
+            'value_converter': (lambda x: int(100 * x))
         },
-    dcgm_fields.DCGM_FI_PROF_PIPE_TENSOR_ACTIVE: 
+    dcgm_fields.DCGM_FI_PROF_PIPE_TENSOR_ACTIVE: # 1004 
         {
-            'name': 'gce/gpu/tensor_active',
+            'name': 'custom.googleapis.com/gce/gpu/tensor_active',
             'desc': 'Ratio of cycles the tensor cores are active',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,  
+            'dcgm_units': 'ratio',
+            'value_converter': (lambda x: int(100 * x))
         },
-    dcgm_fields.DCGM_FI_PROF_PIPE_FP32_ACTIVE:
+    dcgm_fields.DCGM_FI_PROF_PIPE_FP32_ACTIVE: # 1007
         {
-            'name': 'gce/gpu/fp32_active',
+            'name': 'custom.googleapis.com/gce/gpu/fp32_active',
             'desc': 'Ratio of cycles the FP32 cores are active',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
-            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64,  
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+            'dcgm_units': 'ratio',
+            'value_converter': (lambda x: int(100 * x))
         },
-    dcgm_fields.DCGM_FI_PROF_PCIE_TX_BYTES:
+    dcgm_fields.DCGM_FI_PROF_PCIE_TX_BYTES: # 1011
         {
-            'name': 'gce/gpu/pcie_tx_throughput',
+            'name': 'custom.googleapis.com/gce/gpu/pcie_tx_throughput',
             'desc': 'PCIE transmit througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+            'dcgm_units': 'Bytes per second',
+            'value_converter': (lambda x: x) 
         },
     dcgm_fields.DCGM_FI_PROF_PCIE_RX_BYTES:
         {
-            'name': 'gce/gpu/pcie_rx_throughput',
+            'name': 'custom.googleapis.com/gce/gpu/pcie_rx_throughput',
             'desc': 'PCIE receive througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+            'dcgm_units': 'Bytes per second',
+            'value_converter': (lambda x: x) 
         },
     dcgm_fields.DCGM_FI_PROF_NVLINK_TX_BYTES:
         {
-            'name': 'gce/gpu/nvlink_tx_throughput',
+            'name': 'custom.googleapis.com/gce/gpu/nvlink_tx_throughput',
             'desc': 'NVLink transmit througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+            'dcgm_units': 'Bytes per second',
+            'value_converter': (lambda x: x) 
         },
     dcgm_fields.DCGM_FI_PROF_NVLINK_RX_BYTES:
         {
-            'name': 'gce/gpu/nvlink_rx_throughput',
+            'name': 'custom.googleapis.com/gce/gpu/nvlink_rx_throughput',
             'desc': 'NVLink receive througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+            'dcgm_units': 'Bytes per second',
+            'value_converter': (lambda x: x) 
         },
     # Future optional metrics. This metrics cannot be retrieved
     # together with the core metrics without a perf/accuracy penalty.
@@ -171,7 +197,7 @@ class DcgmStackdriver(DcgmReader):
         project_name = self._client.project_path(self._project_id) 
         for key, item in self._fields_to_watch.items():
             descriptor = monitoring_v3.types.MetricDescriptor()
-            descriptor.type = 'custom.googleapis.com/{}'.format(item['name'])
+            descriptor.type = item['name']
             descriptor.metric_kind = item['metric_kind'] 
             descriptor.value_type =  item['value_type']
             descriptor.description = item['desc']
@@ -181,8 +207,10 @@ class DcgmStackdriver(DcgmReader):
         """Constructs SD time series from the DCGM field time_series."""
 
         series = monitoring_v3.types.TimeSeries()
+        #descriptor.type = 'custom.googleapis.com/{}'.format(item['name'])
 
-        field_value = field_time_series[-1].value
+
+        field_value = self._fields_to_watch[field_id]['value_converter'](field_time_series[-1].value)
         print(field_id, field_value)
 
         return series
