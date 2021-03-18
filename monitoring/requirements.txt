@@ -1,7 +1,7 @@
-grpcio==1.35.0
-opencensus-ext-stackdriver==0.7.4
-opencensus==0.7.12
 absl-py
+google-cloud-monitoring==1.1.0
+
+
 
 
 
