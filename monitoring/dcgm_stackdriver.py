@@ -22,6 +22,8 @@ import dcgm_fields
 from absl import app
 from absl import flags
 from absl import logging
+
+from google.api_core import exceptions
 from google.cloud import monitoring_v3
 
 from DcgmReader import DcgmReader
@@ -227,8 +229,8 @@ class DcgmStackdriver(DcgmReader):
         of DCGM watched fields/
         """
         time_series = []
-        #for gpu in fvs:
-        for gpu in [0]:
+        for gpu in fvs:
+        #for gpu in [0]:
             for field_id, field_time_series in fvs[gpu].items():
                 series = self._construct_sd_series(gpu, field_id, field_time_series)
                 if series:
@@ -255,8 +257,6 @@ class DcgmStackdriver(DcgmReader):
         # Skip the first measurement to avoid duplicates in DCGM
         if self._counter > 1:
             self._create_time_series(fvs)
-    
-    
     
     def LogInfo(self, msg):
         logging.info(msg)  # pylint: disable=no-member
@@ -292,7 +292,7 @@ def main(argv):
 
 # Command line parameters
 flags.DEFINE_integer('update_interval', 5, 'Metrics update frequency - seconds', 
-                     lower_bound=5)
+                     lower_bound=1)
 flags.DEFINE_string('project_id', None, 'GCP Project ID')
 flags.mark_flag_as_required('project_id')
 
