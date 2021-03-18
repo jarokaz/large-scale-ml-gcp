@@ -175,9 +175,9 @@ class DcgmStackdriver(DcgmReader):
         self._fields_to_watch = fields_to_watch
         self._project_id = project_id
         self._resource_type = 'gce_instance'
-        self._zone = 'us-west1-b'
+        self._zone = 'us-central1-c'
         self._project_id = 'jk-mlops-dev'
-        self._instance_id = '284365999706661199'
+        self._instance_id = '2800539329846160438'
 
         self._client =  monitoring_v3.MetricServiceClient()
         self._project_name = self._client.project_path(self._project_id)
