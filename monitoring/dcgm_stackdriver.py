@@ -240,7 +240,7 @@ class DcgmStackdriver(DcgmReader):
                 self._client.create_time_series(
                     name=self._project_name, 
                     time_series=time_series)
-                logging.info('Successfully logged time series', time_series)
+                logging.info('Successfully logged time series')
             except exceptions.GoogleAPICallError as err:
                 logging.info(err)
             except exceptions.RetryError as err:
@@ -293,7 +293,7 @@ def main(argv):
 
 # Command line parameters
 flags.DEFINE_integer('update_interval', 10, 'Metrics update frequency - seconds', 
-                     lower_bound=10)
+                     lower_bound=1)
 flags.DEFINE_string('project_id', None, 'GCP Project ID')
 flags.mark_flag_as_required('project_id')
 
