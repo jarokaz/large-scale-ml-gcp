@@ -60,7 +60,7 @@ DCGM_FIELDS = {
             'name': 'custom.googleapis.com/gce/gpu/power_usage',
             'desc': 'Power usage',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
-            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
+            'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE, 
             'dcgm_units': 'Watts',
             #'value_converter': (lambda x: int(x))
         },
@@ -204,35 +204,57 @@ class DcgmStackdriver(DcgmReader):
             descriptor = self._client.create_metric_descriptor(project_name, descriptor)
 
 
+    def _add_point(self, series, field_id, field):
+        """Adds a point to SD time series."""
+
+       # TODO. Check for blank values
+
+        if 'value_converter' in self._fields_to_watch[field_id]:
+            field_value = self._fields_to_watch[field_id]['value_converter'](field.value)
+        else:
+            field_value = field.value 
+
+        seconds = field.ts // 10**6
+        nanos = (field.ts % 10**6) * 10**3
+        point = series.points.add()
+        point.interval.end_time.seconds = seconds
+        point.interval.end_time.nanos = nanos 
+
+        sd_value_type = self._fields_to_watch[field_id]['value_type']
+
+        print('*********')
+        print(field_id)
+        print(field_value)
+
+        if sd_value_type == monitoring_v3.enums.MetricDescriptor.ValueType.INT64:
+            point.value.int64_value = field_value
+        elif sd_value_type == monitoring_v3.enums.MetricDescriptor.ValueType.DOUBLE:
+            point.value.double_value = field_value
+        elif sd_value_type == monitoring_v3.enums.MetricDescriptor.ValueType.BOOL:
+            point.value.bool = field_value 
+        elif sd_value_type == monitoring_v3.enums.MetricDescriptor.ValueType.STRING: 
+            point.value.string = field_value
+        else:
+            raise TypeError('Unsupported metric type: {}'.format(sd_value_type))
+
+
     def _construct_sd_series(self, gpu_number, field_id, field_time_series):
         """Constructs SD time series from the DCGM field time_series."""
 
         series = None
-        if field_id in self._fields_to_watch.keys():
+        field = field_time_series[-1]
+        if (field_id in self._fields_to_watch.keys()) and (not field.isBlank):
+
             series = monitoring_v3.types.TimeSeries()
             series.resource.type = self._resource_type
             for label_key, label_value in self._resource_labels.items():
                 series.resource.labels[label_key] = label_value
             series.metric.type = self._fields_to_watch[field_id]['name']
             series.metric.labels['gpu_number'] = str(gpu_number)
-
-            if 'value_converter' in self._fields_to_watch[field_id]:
-                field_value = self._fields_to_watch[field_id]['value_converter'](field_time_series[-1].value)
-            else:
-                field_value = field_time_series[-1].value 
-
-            # TODO. Check for blank values
-
-            field_timestamp = field_time_series[-1].ts 
-            seconds = field_timestamp // 10**6
-            nanos = (field_timestamp % 10**6) * 10**3
-
-            point = series.points.add()
-            point.value.int64_value = field_value
-            point.interval.end_time.seconds = seconds
-            point.interval.end_time.nanos = nanos
+            self._add_point(series, field_id, field)
 
         return series
+
 
     def _create_time_series(self, fvs):
         """
@@ -245,6 +267,10 @@ class DcgmStackdriver(DcgmReader):
                 series = self._construct_sd_series(gpu, field_id, field_time_series)
                 if series:
                     time_series.append(series)
+        
+        print(time_series)
+
+        return
 
         if time_series:
             try:
