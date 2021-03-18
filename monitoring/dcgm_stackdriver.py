@@ -309,7 +309,7 @@ def main(argv):
     resource_labels = {
         'zone': 'us-west1-b',
         'project_id': 'jk-mlops-dev',
-        'instance_id': '284365999706661199'
+        'instance_id': '99999'
     }
     
     with DcgmStackdriver(fields_to_watch=DCGM_FIELDS, 
