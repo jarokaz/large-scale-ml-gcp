@@ -260,7 +260,7 @@ class DcgmStackdriver(DcgmReader):
         time_series = []
         for gpu in fvs:
             for field_id, field_time_series in fvs[gpu].items():
-                metric_labels = {'gpu': gpu}
+                metric_labels = {'gpu': str(gpu)}
                 series = self._construct_sd_series(field_id, field_time_series, metric_labels)
                 if series:
                     time_series.append(series)
