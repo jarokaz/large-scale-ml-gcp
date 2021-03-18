@@ -185,6 +185,7 @@ class DcgmStackdriver(DcgmReader):
         self._project_id = project_id
         self._resource_type = resource_type
         self._resource_labels = resource_labels
+
         self._client =  monitoring_v3.MetricServiceClient()
         self._project_name = self._client.project_path(self._project_id)
         self._create_sd_metric_descriptors()
