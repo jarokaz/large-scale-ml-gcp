@@ -232,7 +232,7 @@ class DcgmStackdriver(DcgmReader):
             raise TypeError('Unsupported metric type: {}'.format(sd_value_type))
 
 
-    def _construct_sd_series(field_id, field_time_series, metric_labels):
+    def _construct_sd_series(self, field_id, field_time_series, metric_labels):
         """Constructs SD time series from the DCGM field time_series."""
 
         series = None
