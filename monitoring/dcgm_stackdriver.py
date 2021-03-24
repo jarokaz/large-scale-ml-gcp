@@ -126,7 +126,7 @@ DCGM_FIELDS = {
             'desc': 'PCIE transmit througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
-            'sd_units': 'number',
+            #'sd_units': 'number',
             #'value_converter': (lambda x: x) 
         },
     dcgm_fields.DCGM_FI_PROF_PCIE_RX_BYTES:
@@ -135,7 +135,7 @@ DCGM_FIELDS = {
             'desc': 'PCIE receive througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
-            'sd_units': 'number',
+            #'sd_units': 'number',
             #'value_converter': (lambda x: x) 
         },
     dcgm_fields.DCGM_FI_PROF_NVLINK_TX_BYTES:
@@ -144,7 +144,7 @@ DCGM_FIELDS = {
             'desc': 'NVLink transmit througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
-            'sd_units': 'number',
+            #'sd_units': 'number',
             #'value_converter': (lambda x: x) 
         },
     dcgm_fields.DCGM_FI_PROF_NVLINK_RX_BYTES:
@@ -153,7 +153,7 @@ DCGM_FIELDS = {
             'desc': 'NVLink receive througput',
             'metric_kind': monitoring_v3.enums.MetricDescriptor.MetricKind.GAUGE,
             'value_type': monitoring_v3.enums.MetricDescriptor.ValueType.INT64, 
-            'sd_units': 'number',
+            #'sd_units': 'number',
             #'value_converter': (lambda x: x) 
         },
     # Future optional metrics. This metrics cannot be retrieved
@@ -231,7 +231,8 @@ class DcgmStackdriver(DcgmReader):
             descriptor.metric_kind = item['metric_kind'] 
             descriptor.value_type =  item['value_type']
             descriptor.description = item['desc']
-            descriptor.unit = item['sd_units']
+            if 'sd_units' in item.keys():
+                descriptor.unit = item['sd_units']
             descriptor = self._client.create_metric_descriptor(project_name, descriptor)
 
 
@@ -368,4 +369,5 @@ flags.DEFINE_string('project_id', None, 'GCP Project ID')
 flags.mark_flag_as_required('project_id')
 
 if __name__ == '__main__':
+    # Run app
     app.run(main)
