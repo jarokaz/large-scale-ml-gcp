@@ -12,18 +12,18 @@ gcloud compute instances create jk-a2-n1 \
    --boot-disk-size 200GB \
    --metadata "install-nvidia-driver=True,proxy-mode=project_editors" \
    --scopes https://www.googleapis.com/auth/cloud-platform
+
+gcloud notebooks instances register jk-a2-n1 --location us-central1-c
    
 ```
    
 ```
-   gcloud notebooks instances create jk-a2-n1 \
+   gcloud notebooks instances create jk-a2-t2 \
    --project jk-mlops-dev \
-   --zone us-central1-c \
+   --location us-central1-c \
    --machine-type a2-highgpu-1g \
-   --maintenance-policy TERMINATE --restart-on-failure \
-   --image-family tf2-ent-2-3-cu110 \
-   --image-project deeplearning-platform-release \
-   --boot-disk-size 200 \
-   --metadata "install-nvidia-driver=True,proxy-mode=project_editors" \
-   --scopes https://www.googleapis.com/auth/cloud-platform
+   --accelerator-type nvidia-a100 \   
+   --vm-image-family tf2-ent-2-3-cu110 \
+   --vm-image-project deeplearning-platform-release \
+   --metadata "install-nvidia-driver=True,proxy-mode=project_editors" 
 ```
