@@ -30,5 +30,5 @@ sudo journalctl -u google-startup-scripts.service
    --vm-image-family tf2-ent-2-3-cu110 \
    --vm-image-project deeplearning-platform-release \
    --metadata "install-nvidia-driver=True,proxy-mode=project_editors" \
-   --post-installation-script install-dcgm.sh
+   --post-startup-script install-dcgm.sh
 ```
