@@ -30,5 +30,5 @@ gcloud notebooks instances create jk-a2-t2 \
 --accelerator-core-count 1 \
 --accelerator-type NVIDIA_TESLA_V100 \
 --metadata "install-nvidia-driver=True,proxy-mode=project_editors" \
---post-startup-script install-dcgm.sh
+--post-startup-script gs://jk-bert-lab-bucket/scripts/install-dcgm.sh
 ```
