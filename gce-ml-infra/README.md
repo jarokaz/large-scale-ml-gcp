@@ -26,7 +26,7 @@ sudo journalctl -u google-startup-scripts.service
    --location us-central1-c \
    --machine-type a2-highgpu-1g \
    --accelerator-type nvidia-tesla-v100 \  
-   --accelerator-count 1 \
+   --accelerator-core-count 1 \
    --vm-image-family tf2-ent-2-3-cu110 \
    --vm-image-project deeplearning-platform-release \
    --metadata "install-nvidia-driver=True,proxy-mode=project_editors" \
