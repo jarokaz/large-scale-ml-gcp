@@ -11,6 +11,7 @@ gcloud compute instances create jk-a2-n1 \
    --image-project deeplearning-platform-release \
    --boot-disk-size 200GB \
    --metadata "install-nvidia-driver=True,proxy-mode=project_editors" \
+   --metadata-from-file startup-script=install-dcgm.sh \
    --scopes https://www.googleapis.com/auth/cloud-platform
 
 gcloud notebooks instances register jk-a2-n1 --location us-central1-c
