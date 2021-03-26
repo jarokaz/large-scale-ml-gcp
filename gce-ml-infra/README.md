@@ -21,14 +21,14 @@ sudo journalctl -u google-startup-scripts.service
 ```
    
 ```
-   gcloud notebooks instances create jk-a2-t2 \
-   --project jk-mlops-dev \
-   --location us-central1-c \
-   --machine-type n1-standard-4 \
-   --accelerator-type nvidia-tesla-v100 \  
-   --accelerator-core-count 1 \
-   --vm-image-family tf2-ent-2-3-cu110 \
-   --vm-image-project deeplearning-platform-release \
-   --metadata "install-nvidia-driver=True,proxy-mode=project_editors" \
-   --post-startup-script install-dcgm.sh
+gcloud notebooks instances create jk-a2-t2 \
+--project jk-mlops-dev \
+--location us-central1-c \
+--vm-image-project deeplearning-platform-release \
+--vm-image-family tf2-ent-2-3-cu110 \
+--machine-type n1-standard-4 \
+--accelerator-type NVIDIA_TESLA_V100 \  
+--accelerator-core-count 1 \
+--metadata "install-nvidia-driver=True,proxy-mode=project_editors" \
+--post-startup-script install-dcgm.sh
 ```
