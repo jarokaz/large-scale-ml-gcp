@@ -16,7 +16,7 @@ gcloud compute instances create jk-a2-n1 \
 ```
    
 ```
-   gcloud notebook instances create jk-a2-n1 \
+   gcloud notebooks instances create jk-a2-n1 \
    --project jk-mlops-dev \
    --zone us-central1-c \
    --machine-type a2-highgpu-1g \
