@@ -28,7 +28,7 @@ gcloud notebooks instances create jk-a2-t2 \
 --vm-image-family tf2-ent-2-3-cu110 \
 --machine-type n1-standard-4 \
 --accelerator-core-count 1 \
---accelerator-type NVIDIA_TESLA_V100 \  
+--accelerator-type NVIDIA_TESLA_V100 \
 --metadata "install-nvidia-driver=True,proxy-mode=project_editors" \
 --post-startup-script install-dcgm.sh
 ```
