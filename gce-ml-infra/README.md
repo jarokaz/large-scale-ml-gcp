@@ -15,6 +15,8 @@ gcloud compute instances create jk-a2-n1 \
    --scopes https://www.googleapis.com/auth/cloud-platform
 
 gcloud notebooks instances register jk-a2-n1 --location us-central1-c
+
+sudo journalctl -u google-startup-scripts.service
    
 ```
    
