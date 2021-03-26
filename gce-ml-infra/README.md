@@ -23,7 +23,7 @@ gcloud compute instances create jk-a2-n1 \
    --maintenance-policy TERMINATE --restart-on-failure \
    --image-family tf2-ent-2-3-cu110 \
    --image-project deeplearning-platform-release \
-   --boot-disk-size 200GB \
+   --boot-disk-size 200 \
    --metadata "install-nvidia-driver=True,proxy-mode=project_editors" \
    --scopes https://www.googleapis.com/auth/cloud-platform
 ```
