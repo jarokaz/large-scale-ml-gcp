@@ -24,7 +24,7 @@ sudo journalctl -u google-startup-scripts.service
    gcloud notebooks instances create jk-a2-t2 \
    --project jk-mlops-dev \
    --location us-central1-c \
-   --machine-type a2-highgpu-1g \
+   --machine-type n1-standard-4 \
    --accelerator-type nvidia-tesla-v100 \  
    --accelerator-core-count 1 \
    --vm-image-family tf2-ent-2-3-cu110 \
