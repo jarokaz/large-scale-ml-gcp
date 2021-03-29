@@ -7,7 +7,7 @@
 
 TODO
 - Scripts for creating cloud monitoring infrastructure?
-- JK: Trying the new Nvidia DCGM library they open sourced
+- JK: GPU profiling, DCGM driver for pushing metrics to Cloud Monitoring
 - KZ: Image for building TF records from the GLUE dataset
 - KZ: Create scripts for cloud monitoring dashboard
 - Profiling TF code
