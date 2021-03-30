@@ -31,11 +31,11 @@ DASHBOARD_ID=abc123
 
 **Describe dashboard**
 ```
-gcloud monitoring dashboards describe $DASHBOARD_ID 
+gcloud monitoring dashboards describe $DASHBOARD_ID
 ```
 
 **Update dashboard**
-- Add etag from "dashboard describe" to dashboard.json
+- Add etag from dashboard describe
 ```
 gcloud monitoring dashboards update $DASHBOARD_ID --config-from-file=dashboard.json
 ```
@@ -44,16 +44,16 @@ gcloud monitoring dashboards update $DASHBOARD_ID --config-from-file=dashboard.j
 
 ```
 export PROJECT_ID=your_proj
-export IMAGE_NAME=monitoring_image
+export IMAGE_NAME=monitoring-image
 ```
 
 **Build**
 ```
-docker build -t $IMAGE_NAME ./monitoring
+docker build -t $IMAGE_NAME .
 ```
 
 **Run**
 ```
-docker run --rm --gpus all monitoring_image --project_id=$PROJECT_ID
+docker run --rm --network host monitoring-image --project_id kz-2021-267823
 ```
 
