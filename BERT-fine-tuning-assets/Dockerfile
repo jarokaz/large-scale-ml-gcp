@@ -1,5 +1,5 @@
 
-FROM python:3.7-buster
+FROM python:3.7-slim
 
 # Changes the directory
 WORKDIR /app
